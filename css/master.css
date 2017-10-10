@@ -1,0 +1,283 @@
+@import url('https://fonts.googleapis.com/css?family=Quicksand');
+@import url('https://fonts.googleapis.com/css?family=Arial');
+@import url('https://fonts.googleapis.com/css?family=Bad+Script');
+
+body {
+  background: rgb(253, 255, 255);
+  padding: 0;
+  margin: 0;
+  /*padding-top: 40px;*/
+}
+
+header {
+    /*background: #dedede;*/
+    height: 50px;
+    position: fixed;
+    top: 0;
+    transition: top 0.7s ease-in-out;
+    transition-delay: 0.1s;
+    width: 100%;
+    box-shadow: 0px 2px 5px rgba(1, 15, 22, 0.7);
+    background-color: #212A34;
+    box-sizing: border-box;
+    z-index: 2;
+
+}
+
+.nav-up {
+    top: -53px;
+}
+
+header ul {
+    list-style-type: none;
+    /*margin: 10px 150px;*/
+    /*padding: 5px;*/
+    /*overflow: hidden;*/
+    /*box-sizing: border-box;*/
+    margin-right: 10%;
+
+}
+
+li {
+    display: inline-block;
+    float: right;
+    /*background-color: aqua;*/
+}
+
+li a {
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 15px;
+    color: rgb(122, 133, 140);
+    font-weight: 700;
+    font-family: 'Quicksand', sans-serif;
+    text-transform: uppercase;
+    box-sizing: border-box;
+}
+
+header a:hover {
+  color: rgb(255, 255, 255);
+  border-bottom: 2px dashed white;
+}
+
+.intro {
+    position: relative;
+    margin: 0 auto;
+    text-align: center;
+    background-image: linear-gradient(
+      to left,
+        rgba(255, 218, 194, 0.95),
+        rgba(122, 133, 140, 0.95)
+      ),
+      url(../images/home.jpg);
+    background-attachment: fixed;
+    height: 100vh;
+    max-width: 100%;
+    /*z-index: -2;*/
+}
+
+.intro-text {
+  position: absolute;
+  color: white;
+  margin: 0 auto;
+  width: 100%;
+  top: 145px;
+}
+
+.intro-text > h1 {
+  font-size: 92px;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.intro-text > p {
+  position: absolute;
+  margin: 0 auto;
+  width: 100%;
+  top: 150px;
+  font-size: 50px;
+  font-weight: 100;
+  font-family: 'Bad Script', sans-serif;
+
+}
+
+.strike {
+  color: rgba(255, 255, 255, 0.05);
+  text-decoration: line-through;
+}
+
+.strike2 {
+  text-decoration: line-through;
+}
+
+/*.border {
+  margin: 190px 190px;
+  border: 2px solid white;
+}*/
+
+
+/*ini untuk grid system*/
+
+* {
+  box-sizing: border-box;
+}
+
+.grid-container {
+  width: 100%;
+  /*max-width: 1200px;*/
+}
+
+.row:before, .row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+[class*='col-'] {
+  float: left;
+  min-height: 1px;
+  width: 8.33%;
+}
+
+.col-1 {width: 8.33%;}
+.col-2 {width: 16.66%;}
+.col-3 {width: 25%;}
+.col-4 {width: 33.33%;}
+.col-5 {width: 41.66%;}
+.col-6 {width: 50%;}
+.col-7 {width: 58.33%;}
+.col-8 {width: 66.66%;}
+.col-9 {width: 75%;}
+.col-10 {width: 83.33%;}
+.col-11 {width: 91.66%;}
+.col-12 {width: 100%;}
+
+.about {
+  position: relative;
+  margin: 0 auto;
+  /*text-align: center;*/
+  background-image: linear-gradient(
+    to bottom,
+      rgba(224, 207, 204, 0.91),
+      rgba(224, 207, 204, 0.85)
+    ),
+    url(../images/about.jpg);
+  background-attachment: fixed;
+  height: 100vh;
+  width: 100%;
+}
+.about-text {
+  position: relative;
+  font-size: 25px;
+  text-align: center;
+  margin: 0 auto;
+  width: 60%;
+  margin-top: 10%;
+  margin-left: 20%;
+  font-family: 'Bad Script', sans-serif;
+}
+.img-circle {
+  position: relative;
+  top: 100px;
+  border-radius: 75%;
+  display: block;
+  margin: 0 auto;
+  z-index: 1;
+  box-shadow: 2px 3px 6px rgb(18, 18, 18);
+}
+
+.work {
+  position: relative;
+  margin: 0 auto;
+  background-image: linear-gradient(
+    to bottom,
+      rgba(255, 218, 194, 0.87),
+      rgba(0, 0, 0, 0.87)
+    ),
+    url(../images/keyboard.jpg);
+  background-attachment: fixed;
+  height: 100vh;
+  width: 100%;
+}
+
+.work-text {
+  position: relative;
+  font-size: 25px;
+  text-align: center;
+  margin: 0 auto;
+  width: 60%;
+  margin-top: 10%;
+  margin-left: 20%;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.work-img {
+  position: relative;
+  width: 35%;
+  height: 7%;
+}
+
+.button {
+  margin-top: 20%;
+  font-size: 15px;
+  font-family: 'Quicksand', sans-serif;
+  text-transform: uppercase;
+  padding: 10px 25px;
+  clear: both;
+  text-decoration: none;
+  background-color: transparent;
+  border: 2px solid rgb(175, 36, 0);
+  color: rgb(175, 36, 0);
+  font-weight: 600;
+  transition: background-color 0.5s ease-in;
+  transition: color 0.2s ease-in;
+}
+.button:hover {
+  background-color: rgba(175, 26, 0, 1);
+  cursor: pointer;
+  box-shadow: 1px 1px 10px rgba(175, 26, 0, 1);
+  color: white;
+}
+.contact {
+  position: relative;
+  margin: 0 auto;
+  background-image: linear-gradient(
+    to bottom,
+      rgba(0, 0, 0, 0.50),
+      rgba(0, 0, 0, 0.87)
+    ),
+    url(../images/Contact.jpg);
+  background-attachment: fixed;
+  height: 100vh;
+  width: 100%;
+}
+.contact-text {
+  position: relative;
+  font-size: 25px;
+  text-align: center;
+  margin: 0 auto;
+  width: 50%;
+  margin-top: 10%;
+  margin-left: 25%;
+  font-family: 'Quicksand', sans-serif;
+  color: #fff;
+}
+footer {
+  position: absolute;
+  background-color: #000;
+  width: 100%;
+  height: 150px;
+  bottom: 0;
+}
+footer .footer-text {
+  font-family: 'Arial', sans-serif;
+  font-size: 15px;
+  color: rgb(136, 136, 136);
+  width: 90%;
+  margin: 0 auto;
+  margin-left: 5%;
+  text-align: center;
+  margin-top: 7%;
+}
+.fa-heart {
+  color: rgb(184, 0, 0);
+}
