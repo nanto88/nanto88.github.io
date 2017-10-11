@@ -69,7 +69,7 @@ header a:hover {
         rgba(255, 218, 194, 0.95),
         rgba(122, 133, 140, 0.95)
       ),
-      url(../images/home.jpg);
+      url(../images/Home.jpg);
     background-attachment: fixed;
     height: 100vh;
     max-width: 100%;
