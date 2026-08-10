@@ -107,6 +107,18 @@ const {
 </BaseLayout>
 
 <script>
+  // Reading progress bar — scaleX tracks how far down the document we are.
+  const bar = document.querySelector<HTMLElement>('.reading-progress');
+  if (bar) {
+    const update = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`;
+    };
+    addEventListener('scroll', update, { passive: true });
+    addEventListener('resize', update, { passive: true });
+    update();
+  }
+
   // Wrap each sentence in a span so CSS can highlight the one under the pointer.
   // Guards, in order: no split after a single-letter abbreviation ("e.g.", "U.S."),
   // and only split when the next sentence starts non-lowercase — keeps "3.5" intact too.
