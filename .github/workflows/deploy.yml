@@ -26,7 +26,11 @@ jobs:
       - run: npm run check
       # withastro/action builds AND uploads the Pages artifact itself —
       # a second upload-pages-artifact step would fail on a duplicate artifact name.
+      # node-version is required: the action runs its own setup-node defaulting to
+      # 20, which overrides the step above and fails Astro's >=22.12.0 engine check.
       - uses: withastro/action@v3
+        with:
+          node-version: 22
 
   deploy:
     needs: build
