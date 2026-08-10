@@ -1,0 +1,371 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #05080f;
+  --color-surface: #0a0f1a;
+  --color-surface-elevated: #0d1424;
+  --color-text: #55677d;
+  --color-text-secondary: #8296ad;
+  --color-text-muted: #4f6076;
+  --color-accent: #38bdf8;
+  --color-accent-bright: #7dd3fc;
+  --color-prompt: #4ade80;
+  --color-border: #16203a;
+
+  /* Article prose only — needs AA contrast for long-form reading */
+  --color-reading: #a5b6c9;
+  --color-heading: #dce6f2;
+
+  --font-ui: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-body: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .caret {
+    animation: none;
+  }
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-variant-ligatures: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* faint scanline texture — barely visible, no motion */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(148, 190, 255, 0.02) 0 1px,
+    transparent 1px 3px
+  );
+}
+
+a {
+  color: var(--color-accent-bright);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent);
+}
+
+:focus-visible {
+  outline: 1px solid var(--color-accent-bright);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+
+/* Terminal primitives */
+.prompt::before {
+  content: "$ ";
+  color: var(--color-prompt);
+}
+
+.caret::after {
+  content: "\2588";
+  color: var(--color-prompt);
+  animation: blink 1.1s step-end infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.rule {
+  border: 0;
+  border-top: 1px dashed var(--color-border);
+}
+
+.meta-mono {
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* Article reading experience */
+.article-body {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.85;
+  color: var(--color-reading);
+  /* mono glyphs are wide — 66ch keeps the measure in the comfortable range */
+  max-width: 66ch;
+  overflow-wrap: break-word;
+}
+
+@media (max-width: 640px) {
+  .article-body {
+    font-size: 15px;
+    line-height: 1.8;
+  }
+}
+
+.article-body > * + * {
+  margin-top: 1.6em;
+}
+
+.article-body h2,
+.article-body h3 {
+  color: var(--color-heading);
+  font-weight: 700;
+  line-height: 1.45;
+  text-wrap: balance;
+  scroll-margin-top: 2rem;
+}
+
+.article-body h2 {
+  font-size: 1.1em;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: 3em;
+  margin-bottom: 0.9em;
+  padding-bottom: 0.5em;
+  border-bottom: 1px dashed var(--color-border);
+}
+
+.article-body h2::before {
+  content: "## ";
+  color: var(--color-prompt);
+}
+
+.article-body h3 {
+  font-size: 1em;
+  letter-spacing: 0.02em;
+  margin-top: 2.2em;
+  margin-bottom: 0.6em;
+}
+
+.article-body h3::before {
+  content: "### ";
+  color: var(--color-text-muted);
+}
+
+.article-body p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.article-body strong {
+  color: var(--color-heading);
+  font-weight: 700;
+}
+
+/* prose links stay underlined — colour alone is a weak signal mid-sentence */
+.article-body a {
+  text-decoration: underline;
+  text-decoration-color: var(--color-border);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+}
+
+.article-body a:hover {
+  text-decoration-color: var(--color-accent);
+}
+
+.article-body blockquote {
+  border-left: 2px solid var(--color-prompt);
+  background: var(--color-surface);
+  padding: 0.9em 1.2em;
+  color: var(--color-text-secondary);
+}
+
+.article-body blockquote > * + * {
+  margin-top: 0.8em;
+}
+
+.article-body hr {
+  border: 0;
+  border-top: 1px dashed var(--color-border);
+  margin: 2.5em 0;
+}
+
+.article-body ul,
+.article-body ol {
+  padding-left: 1.6em;
+}
+
+.article-body ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.article-body ul > li::before {
+  content: "- ";
+  color: var(--color-prompt);
+}
+
+.article-body ol {
+  list-style: decimal;
+}
+
+.article-body li + li {
+  margin-top: 0.4em;
+}
+
+.article-body img {
+  border: 1px solid var(--color-border);
+  width: 100%;
+  height: auto;
+}
+
+.article-body table {
+  display: block;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.85em;
+}
+
+.article-body th,
+.article-body td {
+  border: 1px solid var(--color-border);
+  padding: 0.5em 0.8em;
+  text-align: left;
+}
+
+.article-body th {
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.article-body code {
+  font-size: 0.9em;
+  color: var(--color-accent-bright);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  padding: 0.12em 0.4em;
+}
+
+.article-body pre {
+  position: relative;
+  font-size: 0.85em;
+  line-height: 1.7;
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-border);
+  padding: 2.1em 1.2em 1.2em;
+  overflow-x: auto;
+  tab-size: 2;
+}
+
+/* Shiki puts the language on the <pre> — surface it as a small label */
+.article-body pre[data-language]::before {
+  content: attr(data-language);
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 0.35em 0.8em;
+  border-right: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.article-body pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+}
+
+/* Dwell-to-highlight: the 3s delay lives here, not in JS. Moving the pointer
+   away before 3s ends the hover, so the transition never starts — self-cancelling. */
+@media (hover: hover) {
+  .article-body .sentence {
+    box-decoration-break: clone;
+    transition: background-color 400ms ease, color 400ms ease, box-shadow 400ms ease;
+    transition-delay: 0s; /* leaving reverts immediately */
+  }
+
+  .article-body .sentence:hover {
+    transition-delay: 3s;
+    background-color: color-mix(in srgb, var(--color-accent) 14%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 14%, transparent);
+    color: var(--color-heading);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .article-body .sentence {
+      transition-duration: 0s;
+    }
+  }
+}
+
+/* Reading progress — scroll-driven, no JS. Hidden where unsupported. */
+@supports (animation-timeline: scroll()) {
+  .reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 60;
+    height: 2px;
+    width: 100%;
+    background: var(--color-prompt);
+    transform-origin: 0 50%;
+    animation: read-progress linear both;
+    animation-timeline: scroll(root block);
+  }
+
+  @keyframes read-progress {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reading-progress {
+      display: none;
+    }
+  }
+}
+
+/* Table of contents */
+.toc summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.toc summary::-webkit-details-marker {
+  display: none;
+}
+
+.toc summary::before {
+  content: "▸ ";
+  color: var(--color-prompt);
+}
+
+.toc[open] summary::before {
+  content: "▾ ";
+}

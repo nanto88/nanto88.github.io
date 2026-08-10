@@ -1,0 +1,19 @@
+---
+interface Props {
+  category: string;
+  date?: Date;
+  readingTime?: string;
+  size?: 'sm' | 'lg';
+}
+
+const { category, date, readingTime, size = 'sm' } = Astro.props;
+
+// 2026.08.10 — terminal-style timestamp
+const stamp = date?.toISOString().slice(0, 10).replace(/-/g, '.');
+---
+
+<p class:list={['meta-mono', size === 'lg' ? 'text-xs' : 'text-[11px]']}>
+  <span class="text-[var(--color-accent)]">[{category}]</span>
+  {stamp && <span> {stamp}</span>}
+  {readingTime && <span> · {readingTime}</span>}
+</p>

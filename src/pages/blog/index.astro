@@ -1,0 +1,17 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { publishedPosts, sortByDateDesc } from '../../lib/blog';
+
+const posts = sortByDateDesc(publishedPosts(await getCollection('blog')));
+---
+
+<BaseLayout title="Blog">
+  <div class="mx-auto max-w-3xl px-6 py-14">
+    <h1 class="prompt text-xl font-bold text-[var(--color-accent-bright)] sm:text-2xl">ls ./blog/</h1>
+    <div class="mt-8 divide-y divide-dashed divide-[var(--color-border)]">
+      {posts.map((post) => <ArticleCard post={post} />)}
+    </div>
+  </div>
+</BaseLayout>

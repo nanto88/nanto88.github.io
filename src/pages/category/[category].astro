@@ -1,0 +1,28 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { publishedPosts, sortByDateDesc } from '../../lib/blog';
+
+export async function getStaticPaths() {
+  const posts = publishedPosts(await getCollection('blog'));
+  const categories = [...new Set(posts.map((post) => post.data.category))];
+
+  return categories.map((category) => ({
+    params: { category },
+    props: { posts: sortByDateDesc(posts.filter((post) => post.data.category === category)) },
+  }));
+}
+
+const { category } = Astro.params;
+const { posts } = Astro.props;
+---
+
+<BaseLayout title={category}>
+  <div class="mx-auto max-w-3xl px-6 py-14">
+    <h1 class="prompt text-xl font-bold sm:text-2xl">ls ./{category}/</h1>
+    <div class="mt-8 divide-y divide-dashed divide-[var(--color-border)]">
+      {posts.map((post) => <ArticleCard post={post} />)}
+    </div>
+  </div>
+</BaseLayout>

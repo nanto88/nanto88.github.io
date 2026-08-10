@@ -1,0 +1,143 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import type { MarkdownHeading } from 'astro';
+import BaseLayout from './BaseLayout.astro';
+import ArticleMeta from '../components/ArticleMeta.astro';
+import { formatDate } from '../lib/blog';
+
+interface Props {
+  title: string;
+  description: string;
+  category: string;
+  tags: string[];
+  pubDate: Date;
+  updatedDate?: Date;
+  readingTime: string;
+  toc?: MarkdownHeading[];
+  related?: CollectionEntry<'blog'>[];
+}
+
+const {
+  title,
+  description,
+  category,
+  tags,
+  pubDate,
+  updatedDate,
+  readingTime,
+  toc = [],
+  related = [],
+} = Astro.props;
+---
+
+<BaseLayout title={title} description={description} type="article">
+  <div class="reading-progress"></div>
+
+  <article class="mx-auto max-w-3xl px-6 py-12">
+    <a href="/blog/" class="meta-mono text-[11px] text-[var(--color-text-muted)] no-underline hover:text-[var(--color-accent-bright)] hover:no-underline">
+      ../blog
+    </a>
+
+    <h1 class="mt-6 text-2xl leading-snug font-bold text-balance text-[var(--color-heading)] sm:text-3xl">
+      <span class="text-[var(--color-prompt)]">#&nbsp;</span>{title}
+    </h1>
+
+    <p class="mt-4 max-w-[66ch] text-sm leading-relaxed text-[var(--color-text-secondary)]">{description}</p>
+
+    <div class="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1">
+      <ArticleMeta category={category} date={pubDate} readingTime={readingTime} size="lg" />
+      {updatedDate && (
+        <span class="meta-mono text-xs">· updated {formatDate(updatedDate)}</span>
+      )}
+    </div>
+
+    <hr class="rule my-8" />
+
+    {toc.length > 0 && (
+      <details class="toc mb-10 max-w-[66ch] border border-dashed border-[var(--color-border)] p-4 text-sm">
+        <summary class="meta-mono text-[11px] text-[var(--color-text-secondary)]">contents</summary>
+        <ol class="mt-3 space-y-1.5">
+          {toc.map((heading, i) => (
+            <li class="flex gap-2">
+              <span class="meta-mono text-[11px] text-[var(--color-text-muted)]">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <a href={`#${heading.slug}`} class="no-underline hover:underline">{heading.text}</a>
+            </li>
+          ))}
+        </ol>
+      </details>
+    )}
+
+    <div class="article-body">
+      <slot />
+    </div>
+
+    {tags.length > 0 && (
+      <>
+        <hr class="rule my-10" />
+        <div class="flex flex-wrap gap-x-4 gap-y-2">
+          {tags.map((tag) => (
+            <a
+              href={`/tag/${tag}/`}
+              class="meta-mono text-[11px] text-[var(--color-text-secondary)] no-underline hover:text-[var(--color-accent-bright)] hover:no-underline"
+            >
+              #{tag}
+            </a>
+          ))}
+        </div>
+      </>
+    )}
+
+    {related.length > 0 && (
+      <section class="mt-14 border-t border-dashed border-[var(--color-border)] pt-6">
+        <p class="meta-mono text-[11px] text-[var(--color-text-muted)]">// read next</p>
+        <ul class="mt-4 space-y-4">
+          {related.map((next) => (
+            <li>
+              <a href={`/blog/${next.id}/`} class="text-sm no-underline hover:underline">
+                <span class="text-[var(--color-prompt)]">→ </span>{next.data.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </article>
+</BaseLayout>
+
+<script>
+  // Wrap each sentence in a span so CSS can highlight the one under the pointer.
+  // Guards, in order: no split after a single-letter abbreviation ("e.g.", "U.S."),
+  // and only split when the next sentence starts non-lowercase — keeps "3.5" intact too.
+  // ponytail: heuristic, not a real tokenizer. Swap in Intl.Segmenter if it ever misreads prose.
+  const SENTENCES = /[\s\S]*?(?<![\s.][A-Za-z])[.!?…]["')\]]?(?=\s+(?![a-z])|\s*$)\s*|[\s\S]+$/g;
+
+  for (const block of document.querySelectorAll('.article-body p, .article-body li')) {
+    if (block.querySelector('img')) continue;
+
+    const wrapped: Node[] = [];
+    let current: HTMLSpanElement | null = null;
+
+    const open = () => {
+      current = document.createElement('span');
+      current.className = 'sentence';
+      wrapped.push(current);
+      return current;
+    };
+
+    for (const node of [...block.childNodes]) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        for (const part of node.textContent?.match(SENTENCES) ?? []) {
+          (current ?? open()).append(part);
+          if (/[.!?…]["')\]]?\s*$/.test(part)) current = null;
+        }
+      } else {
+        // whole inline elements (<code>, <strong>, <a>) join the sentence in progress
+        (current ?? open()).append(node);
+      }
+    }
+
+    block.replaceChildren(...wrapped);
+  }
+</script>

@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SOCIAL } from '../config';
+
+const projects = [
+  {
+    title: '',
+    description: '',
+  },
+];
+---
+
+<BaseLayout title="Projects" description="Things I've built.">
+  <div class="mx-auto max-w-3xl px-6 py-14">
+    <h1 class="prompt text-xl font-bold sm:text-2xl">ls ./projects/</h1>
+    <div class="mt-8 divide-y divide-dashed divide-[var(--color-border)]">
+      {projects.map((project) => (
+        <div class="py-6">
+          <h2 class="font-[family-name:var(--font-ui)] text-xl font-semibold">{project.title}</h2>
+          <p class="mt-2 text-[var(--color-text-secondary)]">{project.description}</p>
+        </div>
+      ))}
+    </div>
+    <p class="mt-8 text-sm text-[var(--color-text-secondary)]">
+      Full project & work experience history on <a href={SOCIAL.linkedin}>LinkedIn →</a>
+    </p>
+  </div>
+</BaseLayout>

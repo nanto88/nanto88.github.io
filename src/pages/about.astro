@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SOCIAL } from '../config';
+---
+
+<BaseLayout title="About" description="I'm Nanto, a software engineer interested in backend systems, AI, and developer tools.">
+  <div class="mx-auto max-w-3xl px-6 py-14">
+    <h1 class="prompt text-xl font-bold sm:text-2xl">cat about.md</h1>
+    <div class="article-body mt-8">
+      <p>
+        I'm Nanto, a software engineer interested in backend systems, AI, and developer tools.
+      </p>
+      <p>
+        I write about engineering and personal blog
+        I've run into along the way mostly backend, system design, and applied AI.
+      </p>
+      <p>
+        Find me on <a href={SOCIAL.github}>GitHub</a>{SOCIAL.linkedin && <> and <a href={SOCIAL.linkedin}>LinkedIn</a></>}.
+      </p>
+    </div>
+  </div>
+</BaseLayout>

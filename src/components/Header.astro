@@ -1,0 +1,35 @@
+---
+const navItems = [
+  { href: '/blog/', label: 'blog' },
+  { href: '/projects/', label: 'projects' },
+  { href: '/about/', label: 'about' },
+];
+
+const path = Astro.url.pathname;
+const cwd = path === '/' ? '~' : `~${path.replace(/\/$/, '')}`;
+---
+
+<header class="border-b border-[var(--color-border)]">
+  <nav class="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-y-2 px-6 py-4 text-xs sm:text-sm">
+    <a href="/" class="text-[var(--color-text-secondary)] no-underline hover:no-underline">
+      <span class="text-[var(--color-accent-bright)]">nanto</span>@blog:<span class="text-[var(--color-text)]">{cwd}</span><span class="text-[var(--color-prompt)]">$</span>
+    </a>
+    <ul class="flex gap-3">
+      {navItems.map((item) => (
+        <li>
+          <a
+            href={item.href}
+            class:list={[
+              'no-underline hover:text-[var(--color-accent-bright)] hover:no-underline',
+              path.startsWith(item.href)
+                ? 'text-[var(--color-accent-bright)]'
+                : 'text-[var(--color-text-muted)]',
+            ]}
+          >
+            <span class="text-[var(--color-border)]">[</span>{item.label}<span class="text-[var(--color-border)]">]</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+</header>

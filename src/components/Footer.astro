@@ -1,0 +1,18 @@
+---
+import { SOCIAL } from '../config';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-[var(--color-border)]">
+  <div class="mx-auto flex max-w-3xl flex-col items-center gap-3 px-6 py-8 text-[11px] text-[var(--color-text-muted)] sm:flex-row sm:justify-between">
+    <p class="meta-mono">&copy; {year} Nanto — <span class="text-[var(--color-prompt)]">EOF</span></p>
+    <div class="flex gap-4">
+      <a href={SOCIAL.github} class="text-[var(--color-text-secondary)] hover:text-[var(--color-accent-bright)]">github</a>
+      {SOCIAL.linkedin && (
+        <a href={SOCIAL.linkedin} class="text-[var(--color-text-secondary)] hover:text-[var(--color-accent-bright)]">linkedin</a>
+      )}
+      <a href="/rss.xml" class="text-[var(--color-text-secondary)] hover:text-[var(--color-accent-bright)]">rss</a>
+    </div>
+  </div>
+</footer>
