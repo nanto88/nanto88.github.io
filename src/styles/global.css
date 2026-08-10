@@ -307,7 +307,7 @@ a:hover {
   }
 
   .article-body .sentence:hover {
-    transition-delay: 3s;
+    transition-delay: 1s;
     background-color: color-mix(in srgb, var(--color-accent) 14%, transparent);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 14%, transparent);
     color: var(--color-heading);
