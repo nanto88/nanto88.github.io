@@ -80,6 +80,27 @@ a:hover {
   color: var(--color-bg);
 }
 
+/* View transitions — quick and flat, matching the terminal feel. Anything
+   springy or slow would read as a web app rather than a document. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 180ms;
+  animation-timing-function: ease;
+}
+
+/* Titles morph from list item to article header, so give them a touch longer. */
+::view-transition-group(*) {
+  animation-duration: 260ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
 /* Terminal primitives */
 .prompt::before {
   content: "$ ";

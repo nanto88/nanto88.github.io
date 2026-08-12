@@ -15,6 +15,8 @@ interface Props {
   readingTime: string;
   toc?: MarkdownHeading[];
   related?: CollectionEntry<'blog'>[];
+  /** must match the ArticleCard heading on the list page for the title morph */
+  transitionName?: string;
 }
 
 const {
@@ -27,6 +29,7 @@ const {
   readingTime,
   toc = [],
   related = [],
+  transitionName,
 } = Astro.props;
 ---
 
@@ -38,7 +41,10 @@ const {
       ../blog
     </a>
 
-    <h1 class="mt-6 text-2xl leading-snug font-bold text-balance text-[var(--color-heading)] sm:text-3xl">
+    <h1
+      class="mt-6 text-2xl leading-snug font-bold text-balance text-[var(--color-heading)] sm:text-3xl"
+      transition:name={transitionName}
+    >
       <span class="text-[var(--color-prompt)]">#&nbsp;</span>{title}
     </h1>
 
@@ -107,17 +113,21 @@ const {
 </BaseLayout>
 
 <script>
+  // ClientRouter swaps the DOM on navigation, so this work is re-run per page via
+  // astro:page-load (which also fires on the initial load) rather than at module scope.
+  let bar: HTMLElement | null = null;
+
   // Reading progress bar — scaleX tracks how far down the document we are.
-  const bar = document.querySelector<HTMLElement>('.reading-progress');
-  if (bar) {
-    const update = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      bar.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`;
-    };
-    addEventListener('scroll', update, { passive: true });
-    addEventListener('resize', update, { passive: true });
-    update();
-  }
+  const update = () => {
+    if (!bar) return;
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`;
+  };
+
+  // Bound once at module scope: re-binding the same reference would be a no-op anyway,
+  // but keeping it out of the per-page handler makes that guarantee explicit.
+  addEventListener('scroll', update, { passive: true });
+  addEventListener('resize', update, { passive: true });
 
   // Wrap each sentence in a span so CSS can highlight the one under the pointer.
   // Guards, in order: no split after a single-letter abbreviation ("e.g.", "U.S."),
@@ -125,31 +135,40 @@ const {
   // ponytail: heuristic, not a real tokenizer. Swap in Intl.Segmenter if it ever misreads prose.
   const SENTENCES = /[\s\S]*?(?<![\s.][A-Za-z])[.!?…]["')\]]?(?=\s+(?![a-z])|\s*$)\s*|[\s\S]+$/g;
 
-  for (const block of document.querySelectorAll('.article-body p, .article-body li')) {
-    if (block.querySelector('img')) continue;
+  function wrapSentences() {
+    for (const block of document.querySelectorAll('.article-body p, .article-body li')) {
+      // already processed (defensive — a re-fired page-load must not double-wrap)
+      if (block.querySelector('.sentence') || block.querySelector('img')) continue;
 
-    const wrapped: Node[] = [];
-    let current: HTMLSpanElement | null = null;
+      const wrapped: Node[] = [];
+      let current: HTMLSpanElement | null = null;
 
-    const open = () => {
-      current = document.createElement('span');
-      current.className = 'sentence';
-      wrapped.push(current);
-      return current;
-    };
+      const open = () => {
+        current = document.createElement('span');
+        current.className = 'sentence';
+        wrapped.push(current);
+        return current;
+      };
 
-    for (const node of [...block.childNodes]) {
-      if (node.nodeType === Node.TEXT_NODE) {
-        for (const part of node.textContent?.match(SENTENCES) ?? []) {
-          (current ?? open()).append(part);
-          if (/[.!?…]["')\]]?\s*$/.test(part)) current = null;
+      for (const node of [...block.childNodes]) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          for (const part of node.textContent?.match(SENTENCES) ?? []) {
+            (current ?? open()).append(part);
+            if (/[.!?…]["')\]]?\s*$/.test(part)) current = null;
+          }
+        } else {
+          // whole inline elements (<code>, <strong>, <a>) join the sentence in progress
+          (current ?? open()).append(node);
         }
-      } else {
-        // whole inline elements (<code>, <strong>, <a>) join the sentence in progress
-        (current ?? open()).append(node);
       }
-    }
 
-    block.replaceChildren(...wrapped);
+      block.replaceChildren(...wrapped);
+    }
   }
+
+  document.addEventListener('astro:page-load', () => {
+    bar = document.querySelector<HTMLElement>('.reading-progress');
+    update();
+    wrapSentences();
+  });
 </script>

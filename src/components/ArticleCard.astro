@@ -13,7 +13,7 @@ const minutesRead = readingTime(post.body ?? '');
 
 <article class="group py-6">
   <ArticleMeta category={post.data.category} date={post.data.pubDate} readingTime={minutesRead} />
-  <h3 class="mt-2 text-base font-bold sm:text-lg">
+  <h3 class="mt-2 text-base font-bold sm:text-lg" transition:name={`post-${post.id}`}>
     <a
       href={`/blog/${post.id}/`}
       class="text-[var(--color-text)] no-underline hover:text-[var(--color-accent-bright)] hover:no-underline"

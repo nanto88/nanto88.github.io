@@ -30,6 +30,7 @@ const toc = headings.filter((h) => h.depth === 2);
   readingTime={minutesRead}
   toc={toc.length >= 3 ? toc : []}
   related={related}
+  transitionName={`post-${post.id}`}
 >
   <Content />
 </BlogPostLayout>
