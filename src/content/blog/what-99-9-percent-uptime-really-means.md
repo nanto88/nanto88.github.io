@@ -17,8 +17,6 @@ Someone on the team picks a database. The docs say 99.9% uptime. Everybody reads
 
 Then one Tuesday afternoon your API starts returning timeouts. Not all of them, just enough to page someone. Nobody deployed. No query changed. Traffic looks exactly like last Tuesday. You stare at a dashboard that says your service is healthy and cannot reach its storage, and twenty minutes later it stops on its own.
 
-The number was never wrong. We just read it wrong.
-
 ## The number is an allowance, not a description
 
 Uptime targets all look about the same when they're printed next to each other. The distance between them is enormous.
@@ -36,11 +34,11 @@ The useful way to hold this is as an error budget: a fixed amount of failure you
 
 ## Bigtable makes this very easy to see
 
-Google Cloud Bigtable publishes different uptime targets for different shapes of the same product. A single cluster sits at the bottom tier. Multi-cluster routing, where your traffic can land on more than one cluster, sits higher. (Pull the exact tiers off the current SLA page before you quote them to anyone — they change, and the exclusions matter more than the headline anyway.)
+Google Cloud Bigtable publishes different uptime targets for different shapes of the same product. A single cluster sits at the bottom tier. Multi-cluster routing, where your traffic can land on more than one cluster, sits higher. (Pull the exact tiers off the current SLA page before you quote them to anyone. They change, and the exclusions matter more than the headline anyway.)
 
 The reason for the gap isn't mysterious. One cluster lives in one zone, and one zone is one failure domain. If that zone is having a bad day, your data is unreachable, and no amount of retrying inside that zone is going to help you.
 
-There's a subtler version of the same thing that bites more often. Bigtable rearranges itself while it's running: it splits a tablet when the tablet gets big, and it moves tablets between nodes to balance load. Requests to that key range wait while it happens. What you see on your end is a single line in the logs — `DEADLINE_EXCEEDED` — and nothing else.
+There's a subtler version of the same thing that bites more often. Bigtable rearranges itself while it's running: it splits a tablet when the tablet gets big, and it moves tablets between nodes to balance load. Requests to that key range wait while it happens. What you see on your end is a single line in the logs, `DEADLINE_EXCEEDED`, and nothing else.
 
 That's the part that catches people. The timeout absolutely has a cause. The cause is just on the other side of a wall you can't look over.
 
@@ -54,9 +52,9 @@ Which is exactly why the first incident feels like a bug in your own code. It's 
 
 Your service is never more available than the chain it sits on. Multiply the targets and the arithmetic gets ugly fast:
 
-- One dependency at 99.9% → 99.9%, or 43 minutes a month.
-- Three dependencies at 99.9% → 99.7%, or about 129 minutes a month.
-- Ten dependencies at 99.9% → 99.0%, or roughly 7 hours a month.
+- One dependency at 99.9%: 99.9%, or 43 minutes a month.
+- Three dependencies at 99.9%: 99.7%, or about 129 minutes a month.
+- Ten dependencies at 99.9%: 99.0%, or roughly 7 hours a month.
 
 You cannot promise a customer 99.99% while your storage promises 99.9%. Not with tidier code, not with a nicer dashboard, not with a more senior on-call rotation.
 
@@ -79,7 +77,7 @@ The budget is fixed. What your service does with it is entirely up to you, and m
 
 **Put a deadline on every call.** A call with no deadline can hold a connection until it dies of old age, and one slow dependency will quietly eat your entire pool. Think of your deadline as a promise to whoever is calling *you*.
 
-**Retry only what's worth retrying.** `UNAVAILABLE` and `DEADLINE_EXCEEDED` are fair game. `INVALID_ARGUMENT` and `PERMISSION_DENIED` are not — retrying a permanent error just gets you the same failure, slower.
+**Retry only what's worth retrying.** `UNAVAILABLE` and `DEADLINE_EXCEEDED` are fair game. `INVALID_ARGUMENT` and `PERMISSION_DENIED` are not. Retrying a permanent error just gets you the same failure, slower.
 
 **Back off, and add jitter.** Without jitter every client retries on the same tick, and the retry storm holds the dependency down well after it was ready to recover.
 
@@ -123,7 +121,7 @@ func withRetry(ctx context.Context, op func(context.Context) error) error {
 
 One timeout at 02:00 is inside the budget. If that timeout wakes someone up, the only thing it teaches them is to stop trusting the pager, and that's a much more expensive problem than the timeout.
 
-Alert on speed instead. The question isn't "did something fail," it's "at this rate, when is the month's budget gone?"
+Alert on speed instead. The question isn't "did something fail", it's "at this rate, when is the month's budget gone?"
 
 ```
 budget_minutes  = 43.2
