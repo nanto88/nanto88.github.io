@@ -1,7 +1,7 @@
 ---
-title: "How We Maintained and Optimized an API at peak 17K RPS"
+title: "How We Maintained and Optimized an API at peak ~17.000 RPS"
 description: "Lessons learned while optimizing a high-throughput backend service."
-pubDate: 2024-03-10
+pubDate: 2025-03-10
 tags:
   - backend
   - performance
@@ -117,6 +117,58 @@ Two rules keep this safe:
 - **Only warm stable data.** If we warm an attribute that changes every minute, the value is already invalid before anyone reads it. We paid for the read twice and cached nothing.
 
 Campaign traffic is the clearest example. The schedule and the audience are both known in advance, so the data is already in Redis before the banner goes live. Then the peak is not a spike of Bigtable reads. It is only a lot of cache hits.
+
+## The big load test
+
+Warming the cache is our own homework. Twice a year something bigger arrives, and it is not only our service that gets tested.
+
+We call it the big load test, or BLT. It is a load test across the whole request chain at once, not one service in isolation. Every dependency in the path takes the traffic at the same time: our service, the upstream gateway, the services that call us, Redis Cluster, and Bigtable. A single service can look perfect on its own and still fail here, because the failure usually lives between two services and not inside one.
+
+The target is simple to state and hard to hold:
+
+| item | value |
+| --- | --- |
+| load | 20K to 50K RPS, ramped up in steps |
+| uptime target during the run | 99.9% |
+| scope | our service plus every dependency in the request path |
+| cadence | every quarter, plus before any big event |
+
+The 99.9% number is the same SLA we owe in production. Over a short test window it leaves very little room, so a few seconds of errors during a ramp step is already a fail. It is a strict rule on purpose. We would rather fail the test on a Tuesday afternoon than fail the real event.
+
+### When we run it
+
+The quarterly run is the routine one. It catches the slow drift that nobody notices day to day: a new attribute that made rows bigger, an extra call added to the request path, a dependency that got a little slower after its own release.
+
+The other runs are tied to the calendar of the business:
+
+- the Ramadhan sale,
+- the company birthday sale,
+- any campaign with a banner and a countdown on the homepage.
+
+These are the days when traffic does not grow, it jumps. The audience is known in advance and everybody arrives in the same minute.
+
+### What happens when we fail the SLA
+
+Failing the test is not a disaster. It is information, and it is cheap at that point.
+
+The first question is always whether it is a code problem or a capacity problem. A code problem shows up as one endpoint getting slower while the rest stay flat, or as a lock, a hot key, or a cache miss storm. We fix those, because more machines only hide them for a while.
+
+A capacity problem looks different. Latency rises everywhere at the same time, CPU sits near the top on every instance, and the error rate follows the load in a straight line. Then the answer is more machines.
+
+Our setup is deliberately old fashioned here. We run classic horizontal instances on GCP, so scaling means more instances of the same shape, and sometimes a bigger shape. There is nothing clever about it. It is predictable, and predictable is what you want at 05:00 on the morning of a sale.
+
+### The BLT spec
+
+Out of every load test we keep one thing: the instance profile that passed. That profile is what we call the BLT spec.
+
+So we end up with two configurations for the same service:
+
+- **the regular spec**, which handles normal daily traffic and normal daily cost,
+- **the BLT spec**, which is the profile that held 99.9% at the tested peak.
+
+Before a campaign goes live, we deploy with the BLT spec instead of the regular spec. We do it early, not at the last minute, because a new instance still needs to warm its local cache and open its connections. After the event ends and traffic returns to normal, we go back to the regular spec.
+
+The Autoscaling reacts after the load arrives, and for a sale that starts at a fixed second, "after" is too late. The load test tells us the number in advance, so we just set the number in advance.
 
 ## Lessons learned
 

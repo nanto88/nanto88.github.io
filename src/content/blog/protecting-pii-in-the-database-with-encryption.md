@@ -5,7 +5,6 @@ pubDate: 2026-08-19
 tags:
   - security
   - encryption
-  - rails
   - mysql
   - database
 category: backend

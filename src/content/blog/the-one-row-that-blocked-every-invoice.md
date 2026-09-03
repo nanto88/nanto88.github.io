@@ -3,8 +3,6 @@ title: "The One Database Row That Blocked Every Invoice"
 description: "How a shared counter row for invoice numbers caused lock timeouts and duplicate numbers, and how one line of SQL fixed both."
 pubDate: 2026-08-15
 tags:
-  - ruby
-  - rails
   - mysql
   - concurrency
   - database

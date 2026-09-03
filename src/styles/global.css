@@ -60,14 +60,18 @@ body::before {
   );
 }
 
-a {
-  color: var(--color-accent-bright);
-  text-decoration: none;
-}
+/* Layered so Tailwind's utilities layer can still win: an unlayered a:hover beats
+   every hover:no-underline in the markup, whatever the specificity says. */
+@layer base {
+  a {
+    color: var(--color-accent-bright);
+    text-decoration: none;
+  }
 
-a:hover {
-  text-decoration: underline;
-  text-decoration-color: var(--color-accent);
+  a:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent);
+  }
 }
 
 :focus-visible {
@@ -323,15 +327,22 @@ a:hover {
 @media (hover: hover) {
   .article-body .sentence {
     box-decoration-break: clone;
+    /* background-color, not -image: gradients can't tween from "none" in any
+       browser tested here — they snap instantly regardless of transition-delay.
+       A flat color is the one fill that reliably animates. */
+    background-color: color-mix(in srgb, var(--color-accent) 0%, transparent);
+    box-shadow: 0 0 0 0 transparent;
     transition: background-color 400ms ease, color 400ms ease, box-shadow 400ms ease;
     transition-delay: 0s; /* leaving reverts immediately */
   }
 
+  /* Reads like a blue marker: a saturated fill with a soft ring that bleeds a
+     little past the text, the way a highlighter stroke overruns the line. */
   .article-body .sentence:hover {
     transition-delay: 1s;
-    background-color: color-mix(in srgb, var(--color-accent) 14%, transparent);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 14%, transparent);
-    color: var(--color-heading);
+    background-color: color-mix(in srgb, var(--color-accent) 38%, transparent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 34%, transparent);
+    color: #eaf4ff;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -379,4 +390,85 @@ a:hover {
 
 .toc[open] summary::before {
   content: "▾ ";
+}
+
+/* Animated disclosure (the "more tags" row on the home page).
+   ::details-content is the only way to animate a <details> closing: without it
+   the browser drops the content from the flow the moment [open] is removed.
+   Browsers that lack it just snap open, same as before. */
+:root {
+  interpolate-size: allow-keywords;
+}
+
+.disclosure summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.disclosure summary::-webkit-details-marker {
+  display: none;
+}
+
+.disclosure summary::before {
+  content: "▸";
+  display: inline-block;
+  margin-right: 0.4em;
+  color: var(--color-prompt);
+  transition: transform 200ms ease;
+}
+
+.disclosure[open] summary::before {
+  transform: rotate(90deg);
+}
+
+@supports selector(::details-content) {
+  .disclosure::details-content {
+    block-size: 0;
+    overflow: clip;
+    opacity: 0;
+    transition:
+      block-size 240ms ease,
+      opacity 200ms ease,
+      content-visibility 240ms;
+    transition-behavior: allow-discrete;
+  }
+
+  .disclosure[open]::details-content {
+    block-size: auto;
+    opacity: 1;
+  }
+}
+
+/* Chips arrive one after another so the row reads left to right instead of
+   landing as a block. --i comes from the template. */
+.disclosure[open] .chip-in {
+  animation: chip-in 260ms ease both;
+  animation-delay: calc(min(var(--i), 8) * 30ms);
+}
+
+@keyframes chip-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .disclosure summary::before,
+  .disclosure::details-content {
+    transition: none;
+  }
+
+  .disclosure[open] .chip-in {
+    animation: none;
+  }
+}
+
+/* Main nav: hover highlights the block instead of recolouring the label. */
+.nav-link {
+  transition: background-color 140ms ease;
+}
+
+.nav-link:hover {
+  background-color: color-mix(in srgb, var(--color-accent) 16%, transparent);
 }

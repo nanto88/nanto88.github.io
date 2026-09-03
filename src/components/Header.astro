@@ -14,13 +14,14 @@ const cwd = path === '/' ? '~' : `~${path.replace(/\/$/, '')}`;
     <a href="/" class="text-[var(--color-text-secondary)] no-underline hover:no-underline">
       <span class="text-[var(--color-accent-bright)]">nanto</span>@blog:<span class="text-[var(--color-text)]">{cwd}</span><span class="text-[var(--color-prompt)]">$</span>
     </a>
-    <ul class="flex gap-3">
+    <ul class="flex gap-0.5">
       {navItems.map((item) => (
         <li>
           <a
             href={item.href}
             class:list={[
-              'no-underline hover:text-[var(--color-accent-bright)] hover:no-underline',
+              // hover is a highlight block, the same tint the article body uses
+              'nav-link px-2 py-1 no-underline hover:no-underline',
               path.startsWith(item.href)
                 ? 'text-[var(--color-accent-bright)]'
                 : 'text-[var(--color-text-muted)]',
