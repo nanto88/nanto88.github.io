@@ -22,7 +22,7 @@ for (const post of allPosts) {
   for (const topic of new Set(topicsOf(post))) count.set(topic, (count.get(topic) ?? 0) + 1);
 }
 
-const categories = [...new Set(allPosts.map((post) => post.data.category))].sort();
+const categories: string[] = [...new Set(allPosts.map((post) => post.data.category))].sort();
 const byUse = [...new Set(allPosts.flatMap((post) => post.data.tags))]
   .filter((tag) => !categories.includes(tag))
   .sort((a, b) => count.get(b)! - count.get(a)! || a.localeCompare(b));
