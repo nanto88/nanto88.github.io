@@ -1,0 +1,473 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { TOOLS, GROUPS, DEFAULT_TOOL } from '../lib/tool-registry';
+
+// Panels and the sidebar are rendered here so the page is readable before the
+// script loads. Only the compute and the output rendering need JavaScript.
+const byGroup = GROUPS.map((g) => ({ ...g, items: TOOLS.filter((t) => t.group === g.id) }));
+---
+
+<BaseLayout
+  title="Tools"
+  description="Small developer tools that run entirely in your browser: base64, JSON, JWT, diff, regex, cron, CIDR and more."
+>
+  <div class="mx-auto max-w-5xl px-6 py-10 sm:py-14">
+    <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+      <h1 class="prompt text-xl font-bold sm:text-2xl">ls ./tools/</h1>
+      <p class="text-xs text-[var(--color-text-muted)]">{TOOLS.length} tools</p>
+    </div>
+
+    <p class="mt-4 max-w-2xl text-xs leading-relaxed text-[var(--color-text-secondary)] sm:text-sm">
+      A free collection of lightweight developer utilities for everyday data, text, encoding, and more. 
+      Everything runs locally in your browser (client-side), making it fast, private, and dependency-free.
+    </p>
+
+    <div class="mt-8 grid gap-5 md:grid-cols-[12rem_minmax(0,1fr)] md:gap-7">
+      <!-- min-w-0: without it the grid item sizes to the nav's max-content and the
+           whole page scrolls sideways on mobile instead of just the nav row -->
+      <aside class="min-w-0 md:sticky md:top-6 md:self-start">
+        <input
+          id="tp-search"
+          type="search"
+          autocomplete="off"
+          placeholder="filter  /"
+          aria-label="Filter tools"
+          class="w-full border border-[var(--color-border)] bg-[var(--color-surface)] px-2 py-1.5 text-xs text-[var(--color-text-secondary)] placeholder:text-[var(--color-text-muted)]"
+        />
+        <nav id="tp-nav" class="mt-3 -mx-6 flex gap-4 overflow-x-auto px-6 pb-2 md:mx-0 md:block md:overflow-visible md:px-0 md:pb-0">
+          <div id="tp-pinned" class="tp-group shrink-0 md:mt-3 md:first:mt-0" hidden>
+            <p class="meta-mono text-[0.65rem]">pinned</p>
+            <ul class="mt-1 flex gap-0.5 md:mt-1.5 md:block"></ul>
+          </div>
+          {byGroup.map((g) => (
+            <div class="tp-group shrink-0 md:mt-3 md:first:mt-0">
+              <p class="meta-mono text-[0.65rem]">{g.label}</p>
+              <ul data-group-list={g.id} class="mt-1 flex gap-0.5 md:mt-1.5 md:block">
+                {g.items.map((t, i) => (
+                  <li
+                    class="tp-item"
+                    data-id={t.id}
+                    data-group={g.id}
+                    data-order={i}
+                    data-name={`${t.id} ${t.name} ${t.desc}`}
+                  >
+                    <button
+                      type="button"
+                      data-select={t.id}
+                      class="tp-link min-w-0 flex-1 whitespace-nowrap px-2 py-1 text-left text-xs"
+                    >{t.name}</button>
+                    <button
+                      type="button"
+                      data-pin={t.id}
+                      aria-pressed="false"
+                      aria-label={`pin ${t.name} to the top`}
+                      title={`pin ${t.name} to the top`}
+                      class="tp-star"
+                    >&#9734;</button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+          <p id="tp-empty" class="mt-3 hidden text-xs text-[var(--color-text-muted)]">no tool matches that.</p>
+        </nav>
+      </aside>
+
+      <section class="min-w-0">
+        {TOOLS.map((t) => (
+          <article class="tp-panel" data-panel={t.id} hidden={t.id !== DEFAULT_TOOL}>
+            <h2 class="text-sm font-bold text-[var(--color-heading)]">{t.name}</h2>
+            <p class="mt-1 text-xs text-[var(--color-text-muted)]">{t.desc}</p>
+
+            {t.warn && (
+              <p class="mt-3 border-l-2 border-[var(--color-prompt)] bg-[var(--color-surface)] px-3 py-2 text-xs text-[var(--color-text-secondary)]">
+                {t.warn}
+              </p>
+            )}
+
+            {t.opts && (
+              <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+                {t.opts.map((o) => (
+                  <label class="flex items-center gap-1.5 text-[var(--color-text-muted)]">
+                    {o.type === 'checkbox' ? (
+                      <input type="checkbox" data-opt={o.id} checked={o.value === true} class="tp-check" />
+                    ) : null}
+                    <span>{o.label}</span>
+                    {o.type === 'select' && (
+                      <select data-opt={o.id} class="tp-field">
+                        {(o.values ?? []).map((v) => <option value={v}>{v}</option>)}
+                      </select>
+                    )}
+                    {o.type === 'text' && (
+                      <input type="text" data-opt={o.id} value={String(o.value ?? '')} size={o.size ?? 12} class="tp-field" />
+                    )}
+                    {o.type === 'number' && (
+                      <input
+                        type="number"
+                        data-opt={o.id}
+                        value={Number(o.value ?? 1)}
+                        min={o.min ?? 1}
+                        max={o.max ?? 999}
+                        class="tp-field w-16"
+                      />
+                    )}
+                  </label>
+                ))}
+                {t.noInput && (
+                  <button type="button" data-rerun class="tp-btn">run again</button>
+                )}
+              </div>
+            )}
+
+            {!t.noInput && (
+              <div
+                class:list={[
+                  'mt-4 grid gap-3',
+                  (t.inputs?.length ?? 0) > 1 && 'sm:grid-cols-2',
+                ]}
+              >
+                {(t.inputs ?? []).map((i) => (
+                  <div class="min-w-0">
+                    {i.label && <p class="meta-mono mb-1 text-[0.65rem]">{i.label}</p>}
+                    <textarea
+                      data-input={i.id}
+                      rows={i.rows ?? 6}
+                      spellcheck="false"
+                      autocapitalize="off"
+                      placeholder={i.placeholder}
+                      aria-label={`${t.name} input${i.label ? ` (${i.label})` : ''}`}
+                      class="tp-area"
+                    ></textarea>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div class="mt-4 flex items-center justify-between gap-3 border-b border-dashed border-[var(--color-border)] pb-1">
+              <p class="meta-mono text-[0.65rem]">output <span data-status class="normal-case tracking-normal"></span></p>
+              <div class="flex gap-1.5">
+                <button type="button" data-find-open class="tp-btn" title="find in output (ctrl+f)">find</button>
+                <button type="button" data-copy class="tp-btn">copy</button>
+              </div>
+            </div>
+
+            <div data-find hidden class="tp-find">
+              <input
+                type="text"
+                data-find-input
+                spellcheck="false"
+                autocomplete="off"
+                placeholder="find in output"
+                aria-label={`Find in ${t.name} output`}
+                class="tp-field min-w-0 flex-1"
+              />
+              <span data-find-count class="tp-find-count"></span>
+              <button type="button" data-find-step="-1" class="tp-btn" title="previous match (shift+enter)">&uarr;</button>
+              <button type="button" data-find-step="1" class="tp-btn" title="next match (enter)">&darr;</button>
+              <button type="button" data-find-close class="tp-btn" title="close (esc)">esc</button>
+            </div>
+
+            <div data-out tabindex="0" role="group" aria-label={`${t.name} output`} class="tp-out"></div>
+          </article>
+        ))}
+      </section>
+    </div>
+  </div>
+</BaseLayout>
+
+<style is:global>
+  /* Not scoped: most of this styles nodes the script builds at runtime, which
+     never carry Astro's scoping attribute. Every selector is tp- prefixed. */
+  .tp-link {
+    color: var(--color-text-muted);
+    border: 1px solid transparent;
+    transition: background-color 140ms ease;
+  }
+  .tp-link:hover {
+    background-color: color-mix(in srgb, var(--color-accent) 16%, transparent);
+  }
+  .tp-link[aria-current='true'] {
+    color: var(--color-accent-bright);
+    border-color: var(--color-border);
+    background: var(--color-surface);
+  }
+  .tp-link[aria-current='true']::before {
+    content: '> ';
+    color: var(--color-prompt);
+  }
+
+  .tp-field,
+  .tp-area {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+  }
+  .tp-field {
+    padding: 0.15rem 0.3rem;
+    font-size: 0.75rem;
+  }
+  .tp-area {
+    display: block;
+    width: 100%;
+    padding: 0.6rem 0.7rem;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    resize: vertical;
+    tab-size: 2;
+  }
+  .tp-area::placeholder {
+    color: var(--color-text-muted);
+  }
+  .tp-check {
+    accent-color: var(--color-accent);
+  }
+
+  .tp-btn {
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    padding: 0.1rem 0.5rem;
+    font-size: 0.7rem;
+  }
+  .tp-btn:hover {
+    color: var(--color-accent-bright);
+    background-color: color-mix(in srgb, var(--color-accent) 16%, transparent);
+  }
+
+  .tp-out {
+    margin-top: 0.75rem;
+    font-size: 0.8rem;
+    line-height: 1.65;
+    min-height: 3rem;
+    overflow-x: auto;
+    tab-size: 2;
+  }
+  .tp-out pre {
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    color: var(--color-text-secondary);
+  }
+  .tp-err {
+    color: #fca5a5;
+  }
+  .tp-hint {
+    color: var(--color-text-muted);
+  }
+  .tp-toolbar {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* key / value rows, used by counter, epoch, cidr, cron, case, hash */
+  .tp-rows {
+    display: grid;
+    grid-template-columns: minmax(7rem, max-content) minmax(0, 1fr);
+    gap: 0.1rem 1rem;
+  }
+  .tp-rows dt {
+    color: var(--color-text-muted);
+  }
+  .tp-rows dd {
+    margin: 0;
+    color: var(--color-accent-bright);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  /* json tree */
+  .tp-json {
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .tp-json details > summary {
+    cursor: pointer;
+    list-style: none;
+  }
+  .tp-json details > summary::-webkit-details-marker {
+    display: none;
+  }
+  .tp-json details > summary:hover {
+    background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  }
+  .tp-json details > summary::before {
+    content: '▾';
+    display: inline-block;
+    width: 1em;
+    color: var(--color-prompt);
+  }
+  .tp-json details:not([open]) > summary::before {
+    content: '▸';
+  }
+  .tp-json .tp-kids {
+    padding-left: 1.15em;
+    border-left: 1px solid var(--color-border);
+    margin-left: 0.35em;
+  }
+  .tp-json .tp-row {
+    padding-left: 1em;
+  }
+  .tp-json details[open] > summary .tp-fold,
+  .tp-json details[open] > summary .tp-inline-close {
+    display: none;
+  }
+  .tp-json details:not([open]) > .tp-kids,
+  .tp-json details:not([open]) > .tp-close {
+    display: none;
+  }
+  .tp-key {
+    color: var(--color-accent-bright);
+    cursor: copy;
+  }
+  .tp-key:hover {
+    text-decoration: underline dotted;
+  }
+  .tp-punc,
+  .tp-fold {
+    color: var(--color-text-muted);
+  }
+  .tp-str {
+    color: var(--color-prompt);
+  }
+  .tp-num {
+    color: #e8a33d;
+  }
+  .tp-bool,
+  .tp-null {
+    color: #c08bf0;
+  }
+  .tp-note {
+    color: var(--color-text-muted);
+    font-style: italic;
+  }
+
+  /* diffs */
+  .tp-diff {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .tp-diff .add {
+    color: var(--color-prompt);
+    background: color-mix(in srgb, var(--color-prompt) 12%, transparent);
+  }
+  .tp-diff .del {
+    color: #fca5a5;
+    background: color-mix(in srgb, #fca5a5 12%, transparent);
+  }
+  .tp-diff .same {
+    color: var(--color-text-muted);
+  }
+
+  .tp-item {
+    display: flex;
+    align-items: center;
+  }
+
+  /* Out of the way until you go looking for it: 20 idle stars would be noise in
+     a sidebar this narrow. A pinned star stays lit so the state is never hidden. */
+  .tp-star {
+    flex-shrink: 0;
+    padding: 0.15rem 0.35rem;
+    font-size: 0.8rem;
+    line-height: 1;
+    color: var(--color-text-muted);
+    opacity: 0;
+    transition: opacity 120ms ease, color 120ms ease;
+  }
+  .tp-star:hover {
+    color: var(--color-prompt);
+  }
+  .tp-star[aria-pressed='true'] {
+    color: var(--color-prompt);
+    opacity: 1;
+  }
+  .tp-item:hover .tp-star,
+  .tp-item:focus-within .tp-star {
+    opacity: 1;
+  }
+  @media (hover: none) {
+    .tp-star {
+      opacity: 1; /* nothing to hover on a touch screen */
+    }
+  }
+
+  .tp-find {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+    padding: 0.35rem 0.4rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+  .tp-find-count {
+    flex-shrink: 0;
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+  }
+
+  /* The Custom Highlight API paints ranges without touching the DOM, so the
+     JSON tree keeps its structure, its listeners and its fold state. Only
+     colour and decoration properties work inside ::highlight(). */
+  ::highlight(tp-find-all) {
+    background-color: color-mix(in srgb, var(--color-accent) 30%, transparent);
+    color: #eaf4ff;
+  }
+  ::highlight(tp-find-cur) {
+    background-color: var(--color-prompt);
+    color: var(--color-bg);
+  }
+
+  .tp-out:focus-visible {
+    outline-offset: 1px;
+  }
+
+  /* hidden-character report */
+  .tp-warnline {
+    margin-top: 0.4rem;
+    color: #e8a33d;
+  }
+  .tp-marked {
+    margin-top: 0.4rem;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    color: var(--color-text-secondary);
+  }
+  .tp-ghost {
+    display: inline-block;
+    padding: 0 0.2em;
+    border: 1px solid currentColor;
+    font-size: 0.8em;
+    vertical-align: baseline;
+  }
+  .tp-ghost-zero-width,
+  .tp-ghost-tag,
+  .tp-ghost-broken {
+    color: #fca5a5;
+  }
+  .tp-ghost-bidi {
+    color: #c08bf0;
+  }
+  .tp-ghost-space {
+    color: var(--color-accent-bright);
+  }
+  .tp-ghost-control,
+  .tp-ghost-soft-hyphen {
+    color: #e8a33d;
+  }
+  .tp-ghost-variation,
+  .tp-ghost-private-use {
+    color: var(--color-text-muted);
+  }
+
+  .tp-hit {
+    background: color-mix(in srgb, var(--color-accent) 32%, transparent);
+    color: #eaf4ff;
+  }
+</style>
+
+<script>
+  import '../lib/tools-page.js';
+</script>

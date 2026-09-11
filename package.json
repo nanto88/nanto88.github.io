@@ -10,7 +10,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "astro": "astro"
+    "astro": "astro",
+    "test": "node --test src/lib/*.test.js"
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.5",
