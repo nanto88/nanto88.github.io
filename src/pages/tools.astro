@@ -14,7 +14,7 @@ const byGroup = GROUPS.map((g) => ({ ...g, items: TOOLS.filter((t) => t.group ==
   <div class="mx-auto max-w-5xl px-6 py-10 sm:py-14">
     <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
       <h1 class="prompt text-xl font-bold sm:text-2xl">ls ./tools/</h1>
-      <p class="text-xs text-[var(--color-text-muted)]">{TOOLS.length} tools</p>
+      <p class="text-xs text-[var(--color-text-muted)]">{TOOLS.length} tools · input saved in this browser</p>
     </div>
 
     <p class="mt-4 max-w-2xl text-xs leading-relaxed text-[var(--color-text-secondary)] sm:text-sm">
@@ -119,10 +119,11 @@ const byGroup = GROUPS.map((g) => ({ ...g, items: TOOLS.filter((t) => t.group ==
               </div>
             )}
 
+            <div class:list={['mt-4', t.split && 'tp-split']}>
             {!t.noInput && (
               <div
                 class:list={[
-                  'mt-4 grid gap-3',
+                  'grid gap-3',
                   (t.inputs?.length ?? 0) > 1 && 'sm:grid-cols-2',
                 ]}
               >
@@ -143,7 +144,8 @@ const byGroup = GROUPS.map((g) => ({ ...g, items: TOOLS.filter((t) => t.group ==
               </div>
             )}
 
-            <div class="mt-4 flex items-center justify-between gap-3 border-b border-dashed border-[var(--color-border)] pb-1">
+            <div class:list={['tp-outcol', !t.noInput && 'mt-4']}>
+            <div class="flex items-center justify-between gap-3 border-b border-dashed border-[var(--color-border)] pb-1">
               <p class="meta-mono text-[0.65rem]">output <span data-status class="normal-case tracking-normal"></span></p>
               <div class="flex gap-1.5">
                 <button type="button" data-find-open class="tp-btn" title="find in output (ctrl+f)">find</button>
@@ -168,6 +170,8 @@ const byGroup = GROUPS.map((g) => ({ ...g, items: TOOLS.filter((t) => t.group ==
             </div>
 
             <div data-out tabindex="0" role="group" aria-label={`${t.name} output`} class="tp-out"></div>
+            </div>
+            </div>
           </article>
         ))}
       </section>
@@ -358,6 +362,24 @@ const byGroup = GROUPS.map((g) => ({ ...g, items: TOOLS.filter((t) => t.group ==
   }
   .tp-diff .same {
     color: var(--color-text-muted);
+  }
+
+  /* Side-by-side input and output. One column below md: two 12rem columns on a
+     phone would leave neither readable. */
+  @media (min-width: 768px) {
+    .tp-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      align-items: start;
+    }
+    .tp-split .tp-outcol {
+      margin-top: 0;
+    }
+    .tp-split .tp-area,
+    .tp-split .tp-out {
+      min-height: 22rem;
+    }
   }
 
   .tp-item {

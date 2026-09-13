@@ -374,6 +374,82 @@ import { TOOLS, DEFAULT_TOOL } from './tool-registry';
     panel.querySelector('[data-out]').focus();
   }
 
+  /* ------------------------------------------------------------ saved input */
+
+  const SAVE_PREFIX = 'tp:input:';
+  // One oversized paste would eat the ~5MB origin quota and evict every other
+  // tool. Restoring a truncated copy would be worse than restoring nothing, so
+  // anything past the cap is simply not saved.
+  const SAVE_CAP = 100_000;
+
+  function saveState(id) {
+    const tool = byId.get(id);
+    const panel = panelOf(id);
+    if (!tool || !panel || tool.noSave) return;
+
+    const key = SAVE_PREFIX + id;
+    const inputs = {};
+    let size = 0;
+    for (const i of tool.inputs ?? []) {
+      const v = panel.querySelector(`[data-input="${i.id}"]`)?.value ?? '';
+      inputs[i.id] = v;
+      size += v.length;
+    }
+    const opts = {};
+    for (const o of tool.opts ?? []) {
+      const f = panel.querySelector(`[data-opt="${o.id}"]`);
+      if (f) opts[o.id] = o.type === 'checkbox' ? f.checked : f.value;
+    }
+
+    try {
+      const blank = (tool.inputs ?? []).length > 0 && size === 0;
+      // clearing the box overwrites what was stored, which is how you wipe an
+      // entry you would rather not leave behind
+      if (blank && !localStorage.getItem(key)) return;
+      if (size > SAVE_CAP) localStorage.removeItem(key);
+      else localStorage.setItem(key, JSON.stringify({ inputs, opts }));
+    } catch {
+      // quota or a blocked store: drop this tool's entry rather than half-save
+      try {
+        localStorage.removeItem(key);
+      } catch {
+        /* nothing left to try */
+      }
+    }
+  }
+
+  function restoreState() {
+    for (const tool of TOOLS) {
+      if (tool.noSave) continue;
+      const panel = panelOf(tool.id);
+      if (!panel) continue;
+
+      let saved;
+      try {
+        saved = JSON.parse(localStorage.getItem(SAVE_PREFIX + tool.id) ?? 'null');
+      } catch {
+        saved = null;
+      }
+      if (!saved || typeof saved !== 'object') continue;
+
+      for (const i of tool.inputs ?? []) {
+        const f = panel.querySelector(`[data-input="${i.id}"]`);
+        const v = saved.inputs?.[i.id];
+        if (f && typeof v === 'string') f.value = v;
+      }
+      for (const o of tool.opts ?? []) {
+        const f = panel.querySelector(`[data-opt="${o.id}"]`);
+        const v = saved.opts?.[o.id];
+        if (!f || v === undefined) continue;
+        if (o.type === 'checkbox') f.checked = !!v;
+        // a stored choice can outlive the option that produced it
+        else if (o.type === 'select') {
+          if ([...f.options].some((op) => op.value === String(v))) f.value = String(v);
+        } else f.value = String(v);
+      }
+    }
+  }
+
   /* --------------------------------------------------------------- bookmarks */
 
   const PIN_KEY = 'tp:pinned';
@@ -499,6 +575,7 @@ import { TOOLS, DEFAULT_TOOL } from './tool-registry';
   // the new nodes: the ranges it was holding point at nodes that are gone
   async function run(id) {
     if (!panelOf(id)) return;
+    saveState(id);
     await compute(id);
     const bar = panelOf(id)?.querySelector('[data-find]');
     if (bar && !bar.hidden) runFind(panelOf(id), { reset: true });
@@ -635,6 +712,7 @@ import { TOOLS, DEFAULT_TOOL } from './tool-registry';
   // after every client-side navigation, so this is the only hook needed.
   function init() {
     if (!document.getElementById('tp-nav')) return; // not the tools page
+    restoreState();
     applyPins();
     select(location.hash.slice(1) || DEFAULT_TOOL, { push: false });
   }

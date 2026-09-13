@@ -35,6 +35,8 @@ import * as T from './tools.js';
  * @property {string} desc
  * @property {string} [warn]          shown as a callout above the inputs
  * @property {boolean} [noInput]      generators: a button instead of a textarea
+ * @property {boolean} [split]        put the output beside the input, not below
+ * @property {boolean} [noSave]       never persist this tool's input to localStorage
  * @property {ToolOpt[]} [opts]
  * @property {ToolInput[]} [inputs]
  * @property {(values: Record<string, string>, opts: Record<string, any>) => any} run
@@ -58,6 +60,7 @@ export const TOOLS = [
     name: 'json viewer',
     group: 'data',
     desc: 'beautify, parse, highlight, fold. keys are clickable to copy their path.',
+    split: true, // raw on the left, tree on the right
     opts: [{ id: 'view', type: 'select', label: 'view', values: ['tree', 'formatted', 'minified'] }],
     inputs: [{ id: 'text', placeholder: '{"user":{"id":1,"roles":["admin"]}}', rows: 8 }],
     run: ({ text: s }, o) => {
@@ -211,7 +214,8 @@ export const TOOLS = [
     name: 'jwt decode',
     group: 'encode',
     desc: 'decode only. the signature is never checked and never sent anywhere.',
-    warn: 'Runs in your browser and nothing is stored or sent. Still, do not paste a live production token into any web page, including this one.',
+    noSave: true, // a token is a credential: it must not be written to disk
+    warn: 'Runs in your browser. Unlike the other tools, this one never saves your input, so nothing is written to browser storage or sent anywhere. Still, do not paste a live production token into any web page, including this one.',
     inputs: [{ id: 'text', placeholder: 'eyJhbGciOi...', rows: 5 }],
     run: ({ text: s }) => ({ kind: 'jwt', ...T.jwtDecode(s) }),
   },
