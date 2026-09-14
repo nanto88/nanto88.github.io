@@ -374,6 +374,22 @@ import { TOOLS, DEFAULT_TOOL } from './tool-registry';
     panel.querySelector('[data-out]').focus();
   }
 
+  /* ------------------------------------------------------------- fill window */
+
+  function setMax(panel, on) {
+    panel.classList.toggle('tp-max', on);
+    const btn = panel.querySelector('[data-max]');
+    if (btn) {
+      btn.setAttribute('aria-pressed', String(on));
+      btn.textContent = on ? 'exit' : 'expand';
+    }
+    // the panel covers the viewport and scrolls itself; let the page behind it
+    // stay put rather than scrolling under the fingers
+    document.documentElement.style.overflow = on ? 'hidden' : '';
+  }
+
+  const maximized = () => document.querySelector('.tp-panel.tp-max');
+
   /* ------------------------------------------------------------ saved input */
 
   const SAVE_PREFIX = 'tp:input:';
@@ -595,6 +611,8 @@ import { TOOLS, DEFAULT_TOOL } from './tool-registry';
     }
     if (push && location.hash.slice(1) !== id) history.replaceState(null, '', `#${id}`);
     resetFind();
+    const wide = maximized();
+    if (wide && wide.dataset.panel !== id) setMax(wide, false);
     if (focus) panelOf(id)?.querySelector('[data-input]')?.focus();
     run(id);
   }
@@ -642,6 +660,8 @@ import { TOOLS, DEFAULT_TOOL } from './tool-registry';
     const panel = e.target.closest('[data-panel]');
     if (!panel) return;
 
+    const maxBtn = e.target.closest('[data-max]');
+    if (maxBtn) setMax(panel, !panel.classList.contains('tp-max'));
     if (e.target.closest('[data-rerun]')) run(panel.dataset.panel);
     if (e.target.closest('[data-find-open]')) openFind(panel);
     if (e.target.closest('[data-find-close]')) closeFind(panel);
@@ -685,6 +705,17 @@ import { TOOLS, DEFAULT_TOOL } from './tool-registry';
     if (!panel) return;
     const inBar = e.target.closest('[data-find]');
     const inOut = e.target.closest('[data-out]');
+
+    // esc closes the find bar first, and only then leaves the filled view. This
+    // asks whether the bar is open, not where the caret is: the bar can be open
+    // while focus sits back in the output.
+    const bar = panel.querySelector('[data-find]');
+    const findOpen = bar && !bar.hidden;
+    if (e.key === 'Escape' && !findOpen && panel.classList.contains('tp-max')) {
+      e.preventDefault();
+      setMax(panel, false);
+      return;
+    }
     if (!inBar && !inOut) return;
 
     // ctrl+f is only taken over while focus sits in the output or the find bar,

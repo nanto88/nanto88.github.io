@@ -148,6 +148,15 @@ const byGroup = GROUPS.map((g) => ({ ...g, items: TOOLS.filter((t) => t.group ==
             <div class="flex items-center justify-between gap-3 border-b border-dashed border-[var(--color-border)] pb-1">
               <p class="meta-mono text-[0.65rem]">output <span data-status class="normal-case tracking-normal"></span></p>
               <div class="flex gap-1.5">
+                {t.maximize && (
+                  <button
+                    type="button"
+                    data-max
+                    aria-pressed="false"
+                    class="tp-btn"
+                    title="fill the window (esc to exit)"
+                  >expand</button>
+                )}
                 <button type="button" data-find-open class="tp-btn" title="find in output (ctrl+f)">find</button>
                 <button type="button" data-copy class="tp-btn">copy</button>
               </div>
@@ -283,7 +292,11 @@ const byGroup = GROUPS.map((g) => ({ ...g, items: TOOLS.filter((t) => t.group ==
 
   /* json tree */
   .tp-json {
-    white-space: pre;
+    /* Indentation is padding on .tp-kids, not literal spaces, so pre-wrap keeps
+       the structure while letting a long value wrap instead of scrolling the
+       whole tree sideways and taking the keys off screen. */
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
     overflow-x: auto;
   }
   .tp-json details > summary {
@@ -364,6 +377,30 @@ const byGroup = GROUPS.map((g) => ({ ...g, items: TOOLS.filter((t) => t.group ==
     color: var(--color-text-muted);
   }
 
+  /* Filling the window is done by growing the panel where it already sits: no
+     DOM is moved, so the find bar, copy and the tree's own listeners keep
+     working exactly as they do inline. */
+  .tp-panel.tp-max {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    overflow: auto;
+    background: var(--color-bg);
+    padding: 1rem 1.25rem 2rem;
+  }
+  .tp-panel.tp-max .tp-area,
+  .tp-panel.tp-max .tp-out {
+    min-height: 76vh;
+  }
+  @media (max-width: 767px) {
+    .tp-panel.tp-max .tp-area {
+      min-height: 30vh;
+    }
+    .tp-panel.tp-max .tp-out {
+      min-height: 45vh;
+    }
+  }
+
   /* Side-by-side input and output. One column below md: two 12rem columns on a
      phone would leave neither readable. */
   @media (min-width: 768px) {
@@ -372,6 +409,12 @@ const byGroup = GROUPS.map((g) => ({ ...g, items: TOOLS.filter((t) => t.group ==
       grid-template-columns: 1fr 1fr;
       gap: 1rem;
       align-items: start;
+    }
+    /* Grid items default to min-width:auto, so a wide expanded tree would set
+       the output column's minimum, collapse the 1fr input column to nothing and
+       push the page sideways. min-width:0 lets .tp-out scroll inside instead. */
+    .tp-split > * {
+      min-width: 0;
     }
     .tp-split .tp-outcol {
       margin-top: 0;

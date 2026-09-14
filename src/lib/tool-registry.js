@@ -37,6 +37,7 @@ import * as T from './tools.js';
  * @property {boolean} [noInput]      generators: a button instead of a textarea
  * @property {boolean} [split]        put the output beside the input, not below
  * @property {boolean} [noSave]       never persist this tool's input to localStorage
+ * @property {boolean} [maximize]     offer a button that fills the window with this tool
  * @property {ToolOpt[]} [opts]
  * @property {ToolInput[]} [inputs]
  * @property {(values: Record<string, string>, opts: Record<string, any>) => any} run
@@ -61,6 +62,7 @@ export const TOOLS = [
     group: 'data',
     desc: 'beautify, parse, highlight, fold. keys are clickable to copy their path.',
     split: true, // raw on the left, tree on the right
+    maximize: true,
     opts: [{ id: 'view', type: 'select', label: 'view', values: ['tree', 'formatted', 'minified'] }],
     inputs: [{ id: 'text', placeholder: '{"user":{"id":1,"roles":["admin"]}}', rows: 8 }],
     run: ({ text: s }, o) => {
@@ -75,6 +77,7 @@ export const TOOLS = [
     name: 'json diff',
     group: 'data',
     desc: 'structural diff by path, not by line. order of keys is ignored.',
+    maximize: true,
     inputs: [
       { id: 'a', label: 'before', placeholder: '{"a":1,"b":2}', rows: 8 },
       { id: 'b', label: 'after', placeholder: '{"a":1,"b":3}', rows: 8 },
