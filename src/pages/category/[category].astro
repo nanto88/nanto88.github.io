@@ -20,7 +20,7 @@ const { posts } = Astro.props;
 
 <BaseLayout title={category}>
   <div class="mx-auto max-w-3xl px-6 py-14">
-    <h1 class="prompt text-xl font-bold sm:text-2xl">ls ./{category}/</h1>
+    <h1 class="text-xl font-bold text-[var(--color-heading)] sm:text-2xl capitalize">{category}</h1>
     <div class="mt-8 divide-y divide-dashed divide-[var(--color-border)]">
       {posts.map((post) => <ArticleCard post={post} />)}
     </div>

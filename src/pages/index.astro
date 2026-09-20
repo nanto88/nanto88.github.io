@@ -51,7 +51,7 @@ const chip =
     </div>
 
     <section class="mt-14" data-filters>
-      <p class="meta-mono text-[11px] text-[var(--color-text-muted)]">// filter</p>
+      <p class="meta-mono text-[11px] text-[var(--color-text-muted)]">Filter</p>
 
       <p class="mt-2 overflow-x-auto text-xs whitespace-nowrap text-[var(--color-text-secondary)]">
         <span class="text-[var(--color-prompt)]">$</span> ls ./blog <span
@@ -119,7 +119,7 @@ const chip =
             data-year={post.data.pubDate.getFullYear()}
           >
             {post.id === featured?.id && (
-              <p class="meta-mono pt-6 text-[11px] text-[var(--color-prompt)]">// featured</p>
+              <p class="meta-mono pt-6 text-[11px] text-[var(--color-prompt)]">Featured</p>
             )}
             <ArticleCard post={post} />
           </div>
