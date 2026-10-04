@@ -17,7 +17,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-article={type === 'article' ? '' : undefined}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -46,6 +46,41 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta name="twitter:description" content={description} />
 
     <meta name="generator" content={Astro.generator} />
+
+    <!-- Runs in <head> so the theme is set before first paint. Head scripts survive
+         ClientRouter navigations, so the listeners are added once. -->
+    <script is:inline>
+      (() => {
+        const root = document.documentElement;
+        let saved = null;
+        try { saved = localStorage.getItem('theme'); } catch {}
+        root.dataset.theme =
+          saved || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+
+        // read mode only has an effect on article pages (data-article), see global.css
+        try { if (localStorage.getItem('read')) root.dataset.read = ''; } catch {}
+
+        // the incoming page has no data-theme, so copy ours onto it before the swap
+        document.addEventListener('astro:before-swap', (e) => {
+          const next = e.newDocument.documentElement;
+          next.dataset.theme = root.dataset.theme;
+          if ('read' in root.dataset) next.dataset.read = '';
+        });
+
+        document.addEventListener('click', (e) => {
+          if (!e.target.closest('[data-read-toggle]')) return;
+          const on = root.toggleAttribute('data-read');
+          try { on ? localStorage.setItem('read', '1') : localStorage.removeItem('read'); } catch {}
+        });
+
+        document.addEventListener('click', (e) => {
+          if (!e.target.closest('[data-theme-toggle]')) return;
+          const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+          root.dataset.theme = next;
+          try { localStorage.setItem('theme', next); } catch {}
+        });
+      })();
+    </script>
 
     <ClientRouter />
   </head>

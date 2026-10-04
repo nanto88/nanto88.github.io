@@ -263,7 +263,7 @@ const byGroup = GROUPS.map((g) => ({ ...g, items: TOOLS.filter((t) => t.group ==
     color: var(--color-text-secondary);
   }
   .tp-err {
-    color: #fca5a5;
+    color: var(--color-danger);
   }
   .tp-hint {
     color: var(--color-text-muted);
@@ -349,11 +349,11 @@ const byGroup = GROUPS.map((g) => ({ ...g, items: TOOLS.filter((t) => t.group ==
     color: var(--color-prompt);
   }
   .tp-num {
-    color: #e8a33d;
+    color: var(--color-warn);
   }
   .tp-bool,
   .tp-null {
-    color: #c08bf0;
+    color: var(--color-violet);
   }
   .tp-note {
     color: var(--color-text-muted);
@@ -370,8 +370,8 @@ const byGroup = GROUPS.map((g) => ({ ...g, items: TOOLS.filter((t) => t.group ==
     background: color-mix(in srgb, var(--color-prompt) 12%, transparent);
   }
   .tp-diff .del {
-    color: #fca5a5;
-    background: color-mix(in srgb, #fca5a5 12%, transparent);
+    color: var(--color-danger);
+    background: color-mix(in srgb, var(--color-danger) 12%, transparent);
   }
   .tp-diff .same {
     color: var(--color-text-muted);
@@ -478,7 +478,7 @@ const byGroup = GROUPS.map((g) => ({ ...g, items: TOOLS.filter((t) => t.group ==
      colour and decoration properties work inside ::highlight(). */
   ::highlight(tp-find-all) {
     background-color: color-mix(in srgb, var(--color-accent) 30%, transparent);
-    color: #eaf4ff;
+    color: var(--color-on-mark);
   }
   ::highlight(tp-find-cur) {
     background-color: var(--color-prompt);
@@ -492,7 +492,7 @@ const byGroup = GROUPS.map((g) => ({ ...g, items: TOOLS.filter((t) => t.group ==
   /* hidden-character report */
   .tp-warnline {
     margin-top: 0.4rem;
-    color: #e8a33d;
+    color: var(--color-warn);
   }
   .tp-marked {
     margin-top: 0.4rem;
@@ -510,17 +510,17 @@ const byGroup = GROUPS.map((g) => ({ ...g, items: TOOLS.filter((t) => t.group ==
   .tp-ghost-zero-width,
   .tp-ghost-tag,
   .tp-ghost-broken {
-    color: #fca5a5;
+    color: var(--color-danger);
   }
   .tp-ghost-bidi {
-    color: #c08bf0;
+    color: var(--color-violet);
   }
   .tp-ghost-space {
     color: var(--color-accent-bright);
   }
   .tp-ghost-control,
   .tp-ghost-soft-hyphen {
-    color: #e8a33d;
+    color: var(--color-warn);
   }
   .tp-ghost-variation,
   .tp-ghost-private-use {
@@ -529,7 +529,7 @@ const byGroup = GROUPS.map((g) => ({ ...g, items: TOOLS.filter((t) => t.group ==
 
   .tp-hit {
     background: color-mix(in srgb, var(--color-accent) 32%, transparent);
-    color: #eaf4ff;
+    color: var(--color-on-mark);
   }
 </style>
 

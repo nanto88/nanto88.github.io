@@ -30,6 +30,16 @@ const cwd = path === '/' ? '~' : `~${path.replace(/\/$/, '')}`;
           </a>
         </li>
       ))}
+      <li>
+        <button
+          type="button"
+          data-theme-toggle
+          class="nav-link theme-toggle px-2 py-1 text-[var(--color-text-muted)]"
+          aria-label="Switch colour theme"
+        >
+          <span class="text-[var(--color-border)]">[</span><span class="to-light">light</span><span class="to-dark">dark</span><span class="text-[var(--color-border)]">]</span>
+        </button>
+      </li>
     </ul>
   </nav>
 </header>

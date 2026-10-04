@@ -16,6 +16,16 @@
   --color-reading: #a5b6c9;
   --color-heading: #dce6f2;
 
+  /* Status and syntax colours. Tuned per theme: the dark pastels vanish on paper. */
+  --color-danger: #fca5a5;
+  --color-warn: #e8a33d;
+  --color-violet: #c08bf0;
+  --color-ok: #3fb950;
+  --color-caution: #d29922;
+  --color-error: #f85149;
+  /* text on top of an accent-tinted highlight */
+  --color-on-mark: #eaf4ff;
+
   --font-ui: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --font-body: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -23,6 +33,31 @@
 
 :root {
   color-scheme: dark;
+}
+
+/* Light theme. Same variable names, so nothing else needs to know. The theme is
+   set on <html> by the inline script in BaseLayout (saved choice, else the OS). */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-bg: #f6f8fb;
+  --color-surface: #edf1f6;
+  --color-surface-elevated: #e4eaf2;
+  --color-text: #46576c;
+  --color-text-secondary: #34445a;
+  --color-text-muted: #5b6c82;
+  --color-accent: #0284c7;
+  --color-accent-bright: #0369a1;
+  --color-prompt: #15803d;
+  --color-border: #c9d3e0;
+  --color-reading: #2a384b;
+  --color-heading: #0b1524;
+  --color-danger: #b91c1c;
+  --color-warn: #a16207;
+  --color-violet: #7e22ce;
+  --color-ok: #15803d;
+  --color-caution: #a16207;
+  --color-error: #b91c1c;
+  --color-on-mark: #04263d;
 }
 
 html {
@@ -315,6 +350,16 @@ body::before {
   color: var(--color-text-muted);
 }
 
+/* Shiki is built with both themes (astro.config.mjs) and emits the colours as
+   variables. Pick the set that matches the current theme. */
+.astro-code span {
+  color: var(--shiki-dark);
+}
+
+:root[data-theme="light"] .astro-code span {
+  color: var(--shiki-light);
+}
+
 .article-body pre code {
   background: none;
   border: none;
@@ -342,7 +387,7 @@ body::before {
     transition-delay: 1s;
     background-color: color-mix(in srgb, var(--color-accent) 38%, transparent);
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 34%, transparent);
-    color: #eaf4ff;
+    color: var(--color-on-mark);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -466,9 +511,150 @@ body::before {
 
 /* Main nav: hover highlights the block instead of recolouring the label. */
 .nav-link {
+  /* links are inline by default and the toggle is a button (inline-block), which
+     left the hover blocks 3px apart. One display value keeps them level. */
+  display: inline-block;
   transition: background-color 140ms ease;
 }
 
 .nav-link:hover {
   background-color: color-mix(in srgb, var(--color-accent) 16%, transparent);
+}
+
+/* Theme toggle: shows the theme you would switch to. */
+.theme-toggle {
+  font: inherit;
+  cursor: pointer;
+  background: none;
+  border: 0;
+}
+
+.theme-toggle .to-light,
+:root[data-theme="light"] .theme-toggle .to-dark {
+  display: inline;
+}
+
+.theme-toggle .to-dark,
+:root[data-theme="light"] .theme-toggle .to-light {
+  display: none;
+}
+
+/* Read mode (article pages only). Warm palette with the blue taken out, plus a
+   little more room in the text. Layers over whichever theme is active. */
+:root[data-read][data-article][data-theme="light"] {
+  --color-bg: #f4ecd8;
+  --color-surface: #ebe2cb;
+  --color-surface-elevated: #e3d9bf;
+  --color-text: #5b4b36;
+  --color-text-secondary: #4a3c2a;
+  --color-text-muted: #75634a;
+  --color-accent: #9a5b13;
+  --color-accent-bright: #8a4e0c;
+  --color-prompt: #566f19;
+  --color-border: #d6c8a6;
+  --color-reading: #3b2f20;
+  --color-heading: #20170b;
+  --color-danger: #a63d2a;
+  --color-warn: #8a5a00;
+  --color-violet: #7a3f6b;
+  --color-ok: #4d6b1a;
+  --color-caution: #8a5a00;
+  --color-error: #a63d2a;
+  --color-on-mark: #2a1a05;
+}
+
+:root[data-read][data-article][data-theme="dark"] {
+  --color-bg: #17130d;
+  --color-surface: #1f1a12;
+  --color-surface-elevated: #271f15;
+  --color-text: #a89578;
+  --color-text-secondary: #bfae92;
+  --color-text-muted: #8c7a5f;
+  --color-accent: #e0a458;
+  --color-accent-bright: #f0b866;
+  --color-prompt: #b5c46a;
+  --color-border: #3a3021;
+  --color-reading: #d8c8a8;
+  --color-heading: #f0e2c4;
+  --color-danger: #e8a08a;
+  --color-warn: #e8b04d;
+  --color-violet: #d3a0c0;
+  --color-ok: #b5c46a;
+  --color-caution: #e8b04d;
+  --color-error: #e8957f;
+  --color-on-mark: #fff3dc;
+}
+
+:root[data-read][data-article] body::before {
+  display: none;
+}
+
+:root[data-read][data-article] .article-body {
+  font-size: 17px;
+  line-height: 1.95;
+}
+
+/* Shiki's palettes are cool-toned. Warm them rather than maintain a third theme. */
+:root[data-read][data-article] .astro-code span {
+  filter: sepia(0.7);
+}
+
+/* sepia alone washes the lighter tokens out against paper, so deepen them in light */
+:root[data-read][data-article][data-theme="light"] .astro-code span {
+  filter: sepia(0.7) brightness(0.8) contrast(1.2);
+}
+
+.read-toggle .read-on,
+:root[data-read][data-article] .read-toggle .read-off {
+  display: none;
+}
+
+:root[data-read][data-article] .read-toggle .read-on {
+  display: inline;
+}
+
+/* Floating contents: the link for the section being read. The border sits over the
+   list's dashed rail, hence the negative margin. */
+.toc-link {
+  margin-left: -1px;
+  border-left: 1px solid transparent;
+}
+
+.toc-link[aria-current] {
+  color: var(--color-accent-bright);
+  border-left-color: var(--color-accent-bright);
+  background-color: color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+
+/* Back to top: appears once you have scrolled a screen or so. visibility keeps it
+   out of the tab order while hidden. */
+.to-top {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 55;
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 160ms ease, visibility 160ms ease, color 140ms ease;
+}
+
+.to-top.is-shown {
+  opacity: 1;
+  visibility: visible;
+}
+
+.to-top:hover {
+  color: var(--color-accent-bright);
+  border-color: var(--color-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .to-top {
+    transition: none;
+  }
 }

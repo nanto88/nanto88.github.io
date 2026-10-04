@@ -8,9 +8,9 @@ const { type = 'info' } = Astro.props;
 const colors: Record<string, string> = {
   info: 'var(--color-accent)',
   tip: 'var(--color-accent)',
-  success: '#3fb950',
-  warning: '#d29922',
-  danger: '#f85149',
+  success: 'var(--color-ok)',
+  warning: 'var(--color-caution)',
+  danger: 'var(--color-error)',
 };
 
 const labels: Record<string, string> = {

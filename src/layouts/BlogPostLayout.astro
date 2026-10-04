@@ -55,12 +55,20 @@ const {
       {updatedDate && (
         <span class="meta-mono text-xs">· updated {formatDate(updatedDate)}</span>
       )}
+      <button
+        type="button"
+        data-read-toggle
+        class="read-toggle meta-mono ml-auto cursor-pointer text-xs hover:text-[var(--color-accent-bright)]"
+        title="Warm colours, no blue tones, roomier text"
+      >
+        <span class="read-off">[ ] read mode</span><span class="read-on">[x] read mode</span>
+      </button>
     </div>
 
     <hr class="rule my-8" />
 
     {toc.length > 0 && (
-      <details class="toc mb-10 max-w-[66ch] border border-dashed border-[var(--color-border)] p-4 text-sm">
+      <details class="toc mb-10 max-w-[66ch] xl:hidden border border-dashed border-[var(--color-border)] p-4 text-sm">
         <summary class="meta-mono text-[11px] text-[var(--color-text-secondary)]">contents</summary>
         <ol class="mt-3 space-y-1.5">
           {toc.map((heading, i) => (
@@ -73,6 +81,29 @@ const {
           ))}
         </ol>
       </details>
+    )}
+
+    {toc.length > 0 && (
+      // Wide screens only: sits in the right margin beside the 3xl column and stays put
+      // while scrolling. The script marks the link of the heading being read.
+      <nav
+        class="toc-float fixed top-24 left-1/2 ml-[25.5rem] hidden max-h-[calc(100vh-8rem)] w-52 overflow-y-auto text-[11px] leading-snug xl:block"
+        aria-label="Contents"
+      >
+        <p class="meta-mono mb-3 text-[11px]">contents</p>
+        <ol class="space-y-1 border-l border-dashed border-[var(--color-border)]">
+          {toc.map((heading) => (
+            <li>
+              <a
+                href={`#${heading.slug}`}
+                class="toc-link block py-1 pl-3 text-[var(--color-text-muted)] no-underline hover:text-[var(--color-accent-bright)] hover:no-underline"
+              >
+                {heading.text}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
     )}
 
     <div class="article-body">
@@ -109,6 +140,8 @@ const {
         </ul>
       </section>
     )}
+
+    <button type="button" class="to-top meta-mono text-[11px]" aria-label="Back to top">[↑ top]</button>
   </article>
 </BaseLayout>
 
@@ -116,12 +149,33 @@ const {
   // ClientRouter swaps the DOM on navigation, so this work is re-run per page via
   // astro:page-load (which also fires on the initial load) rather than at module scope.
   let bar: HTMLElement | null = null;
+  let toTop: HTMLElement | null = null;
+  // [heading, its link in the floating contents] pairs, in document order
+  let spy: [HTMLElement, Element][] = [];
+  let current: Element | null = null;
 
   // Reading progress bar — scaleX tracks how far down the document we are.
   const update = () => {
     if (!bar) return;
     const max = document.documentElement.scrollHeight - window.innerHeight;
     bar.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`;
+    toTop?.classList.toggle('is-shown', window.scrollY > window.innerHeight);
+
+    // Scroll-spy: the current section is the last heading that has reached the top
+    // third of the viewport. At the very bottom, short last sections would never get
+    // there, so the final heading wins instead.
+    if (!spy.length) return;
+    const line = window.innerHeight / 3;
+    const atEnd = window.scrollY >= max - 2;
+    let active = spy[0][1];
+    for (const [heading, link] of spy) {
+      if (!atEnd && heading.getBoundingClientRect().top > line) break;
+      active = link;
+    }
+    if (active === current) return;
+    current?.removeAttribute('aria-current');
+    active.setAttribute('aria-current', 'location');
+    current = active;
   };
 
   // Bound once at module scope: re-binding the same reference would be a no-op anyway,
@@ -168,6 +222,14 @@ const {
 
   document.addEventListener('astro:page-load', () => {
     bar = document.querySelector<HTMLElement>('.reading-progress');
+    toTop = document.querySelector<HTMLElement>('.to-top');
+    // smooth or instant follows the page's scroll-behavior (reduced motion turns it off)
+    toTop?.addEventListener('click', () => scrollTo({ top: 0 }));
+    current = null;
+    spy = [...document.querySelectorAll<HTMLAnchorElement>('.toc-float .toc-link')].flatMap((link) => {
+      const heading = document.getElementById(link.hash.slice(1));
+      return heading ? [[heading, link] as [HTMLElement, Element]] : [];
+    });
     update();
     wrapSentences();
   });
