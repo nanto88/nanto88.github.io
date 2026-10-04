@@ -78,6 +78,9 @@ Saku is my side project, an Android money manager. Its `shared/` module holds th
 - ask llm or rule based to find the transactions
 - CSV import and the database entities
 
+Here is the hint of app design:
+![saku-design](../images/saku-design-hint.png)
+
 Here is the start of `Money`. It is plain Kotlin with no Android in sight.
 
 ```kotlin

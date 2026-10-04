@@ -52,6 +52,9 @@ I picked Kotlin for two reasons:
 
 The `plan/` folder has 22 files. The `README.md` is a table of contents with one line per file. The other files cover scope, architecture, data model, security, reports and a roadmap.
 
+here's the plan files:
+![plan](../images/saku-plan-hint.png)
+
 Why many small files and not one big document? Claude reads only the file it needs. I can review one topic at a time. And a change shows up as a small diff.
 
 The roadmap has a column I now copy everywhere. It is called "Done when".
@@ -63,6 +66,10 @@ The roadmap has a column I now copy everywhere. It is called "Done when".
 The plan also marks every guess with the word ASSUMPTION. Open questions get a date when they are answered. Later I can search for the guesses, and I know which numbers I should not trust.
 
 ## Design: look at it before you build it
+
+Here is the **hint** of app design and architecture:
+![saku-design](../images/saku-design-hint.png)
+![saku-architecture](../images/saku-architecture-hint.png)
 
 The `design/` folder has an architecture page, a database diagram, and 33 screen mocks. They are plain HTML files, so I open them in a browser. A change to a mock costs almost nothing. A change to Kotlin costs much more.
 
