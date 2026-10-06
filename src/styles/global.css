@@ -27,7 +27,8 @@
   --color-on-mark: #eaf4ff;
 
   --font-ui: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --font-body: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-body: "Source Serif 4", Charter, "Iowan Old Style", Georgia, serif;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
@@ -173,59 +174,46 @@ body::before {
 /* Article reading experience */
 .article-body {
   font-family: var(--font-body);
-  font-size: 16px;
-  line-height: 1.85;
+  font-size: 20px;
+  line-height: 1.7;
   color: var(--color-reading);
-  /* mono glyphs are wide — 66ch keeps the measure in the comfortable range */
-  max-width: 66ch;
+  /* serif body, about 70 characters per line */
+  max-width: 680px;
   overflow-wrap: break-word;
 }
 
 @media (max-width: 640px) {
   .article-body {
-    font-size: 15px;
-    line-height: 1.8;
+    font-size: 18px;
+    line-height: 1.7;
   }
 }
 
 .article-body > * + * {
-  margin-top: 1.6em;
+  margin-top: 1.1em;
 }
 
 .article-body h2,
 .article-body h3 {
+  font-family: var(--font-sans);
   color: var(--color-heading);
   font-weight: 700;
-  line-height: 1.45;
+  line-height: 1.3;
   text-wrap: balance;
   scroll-margin-top: 2rem;
 }
 
 .article-body h2 {
-  font-size: 1.1em;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  margin-top: 3em;
-  margin-bottom: 0.9em;
-  padding-bottom: 0.5em;
-  border-bottom: 1px dashed var(--color-border);
-}
-
-.article-body h2::before {
-  content: "## ";
-  color: var(--color-prompt);
+  font-size: 1.55em;
+  letter-spacing: -0.01em;
+  margin-top: 2.2em;
+  margin-bottom: 0.5em;
 }
 
 .article-body h3 {
-  font-size: 1em;
-  letter-spacing: 0.02em;
-  margin-top: 2.2em;
-  margin-bottom: 0.6em;
-}
-
-.article-body h3::before {
-  content: "### ";
-  color: var(--color-text-muted);
+  font-size: 1.25em;
+  margin-top: 1.8em;
+  margin-bottom: 0.4em;
 }
 
 .article-body p {
@@ -253,7 +241,8 @@ body::before {
 .article-body blockquote {
   border-left: 2px solid var(--color-prompt);
   background: var(--color-surface);
-  padding: 0.9em 1.2em;
+  padding: 0.6em 1.2em;
+  font-style: italic;
   color: var(--color-text-secondary);
 }
 
@@ -273,13 +262,11 @@ body::before {
 }
 
 .article-body ul {
-  list-style: none;
-  padding-left: 0;
+  list-style: disc;
 }
 
-.article-body ul > li::before {
-  content: "- ";
-  color: var(--color-prompt);
+.article-body li::marker {
+  color: var(--color-text-muted);
 }
 
 .article-body ol {
@@ -287,7 +274,7 @@ body::before {
 }
 
 .article-body li + li {
-  margin-top: 0.4em;
+  margin-top: 0.5em;
 }
 
 .article-body img {
@@ -300,7 +287,9 @@ body::before {
   display: block;
   overflow-x: auto;
   border-collapse: collapse;
-  font-size: 0.85em;
+  font-family: var(--font-sans);
+  font-size: 0.8em;
+  line-height: 1.5;
 }
 
 .article-body th,
@@ -312,12 +301,12 @@ body::before {
 
 .article-body th {
   color: var(--color-text-secondary);
-  text-transform: uppercase;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .article-body code {
-  font-size: 0.9em;
+  font-family: var(--font-mono);
+  font-size: 0.8em;
   color: var(--color-accent-bright);
   background: var(--color-surface-elevated);
   border: 1px solid var(--color-border);
@@ -326,7 +315,8 @@ body::before {
 
 .article-body pre {
   position: relative;
-  font-size: 0.85em;
+  font-family: var(--font-mono);
+  font-size: 0.75em;
   line-height: 1.7;
   background: var(--color-surface) !important;
   border: 1px solid var(--color-border);

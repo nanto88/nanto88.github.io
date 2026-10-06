@@ -36,7 +36,7 @@ const {
 <BaseLayout title={title} description={description} type="article">
   <div class="reading-progress"></div>
 
-  <article class="mx-auto max-w-3xl px-6 py-12">
+  <article class="mx-auto max-w-[760px] px-6 py-12">
     <a href="/" class="meta-mono text-[11px] text-[var(--color-text-muted)] no-underline hover:text-[var(--color-accent-bright)] hover:no-underline">
       ../home
     </a>
@@ -48,7 +48,7 @@ const {
       <span class="text-[var(--color-prompt)]">#&nbsp;</span>{title}
     </h1>
 
-    <p class="mt-4 max-w-[66ch] text-sm leading-relaxed text-[var(--color-text-secondary)]">{description}</p>
+    <p class="mt-4 max-w-[680px] text-sm leading-relaxed text-[var(--color-text-secondary)]">{description}</p>
 
     <div class="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1">
       <ArticleMeta category={category} date={pubDate} readingTime={readingTime} size="lg" />
@@ -68,7 +68,7 @@ const {
     <hr class="rule my-8" />
 
     {toc.length > 0 && (
-      <details class="toc mb-10 max-w-[66ch] xl:hidden border border-dashed border-[var(--color-border)] p-4 text-sm">
+      <details class="toc mb-10 max-w-[680px] xl:hidden border border-dashed border-[var(--color-border)] p-4 text-sm">
         <summary class="meta-mono text-[11px] text-[var(--color-text-secondary)]">contents</summary>
         <ol class="mt-3 space-y-1.5">
           {toc.map((heading, i) => (
