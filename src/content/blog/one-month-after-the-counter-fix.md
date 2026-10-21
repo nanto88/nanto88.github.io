@@ -1,6 +1,6 @@
 ---
-title: "One Month After We Freed the Invoice Counter"
-description: "We moved the invoice number counter to its own database connection. Here is what production showed in the month after we turned it on."
+title: "Improvement: p99 latency reduced from 92.7 ms to 4.8 ms (-94.8%) by fixing a row-locking issue"
+description: "We moved the invoice number counter to its own database connection pool. Here is what production showed in the month after we turned it on."
 pubDate: 2026-10-19
 tags:
   - mysql
@@ -9,18 +9,16 @@ tags:
   - observability
 category: backend
 draft: false
-featured: false
+featured: true
 ---
 
 In my [last post](/blog/the-one-row-that-blocked-every-invoice/), I wrote about one database row that blocked every invoice. Every new invoice number came from a shared counter row. That row stayed locked for the whole request, so busy moments turned into a queue, and the queue turned into timeouts.
 
-A fix that works on my laptop is a promise. A fix that works in production is a result. So after we turned it on, I waited a month and then looked at the numbers.
-
-This post is that check.
+A fix that works on my laptop is a promise. A fix that works in production is a result
 
 ## What we actually shipped
 
-The first post showed a version built on `LAST_INSERT_ID`. The version that went to production is simpler. We kept the gem's own logic and changed only two things: the connection and the lock.
+The first post showed a version built on `LAST_INSERT_ID`. The version that went to production is simpler. We kept the library's (protokoll - library installed on repo by legacy :() own logic and changed only two things: the connection and the lock.
 
 ```ruby
 def claim(object, options)
@@ -87,7 +85,7 @@ Errors also dropped on the endpoints that had them:
 
 | Endpoint | Errors before | Errors after |
 | --- | --- | --- |
-| Back office GraphQL (manual invoices, contracts) | 239 | 105 |
+| GraphQL Query (manual invoices, contracts) | 239 | 105 |
 | Subscription renewals | 15 | 0 |
 | Payment receipt callback | 11 | 0 |
 
@@ -119,4 +117,4 @@ There is also the trade-off from the first post. The claim commits on its own, s
 
 If your service makes sequential numbers (invoice numbers, order numbers, ticket ids) from one shared counter row, check where that update runs. If it runs inside a long transaction, the lock lives as long as that transaction. Under load, that one row becomes a queue for the whole system.
 
-You don't need a big redesign. Claim the number on its own short transaction, so the lock is released in milliseconds. Then wait a month, and measure the tail, not the average. That is where this kind of fix shows up.
+You don't need a big redesign. Claim the number on its own short transaction
